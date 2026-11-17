@@ -2,311 +2,300 @@
 <html lang="zh-Hant">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#101827">
-  <title>FTMO WebSocket Origin 測試</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>FTMO MT5 Bootstrap Diagnostic</title>
   <style>
-    :root {
-      color-scheme: dark;
-      --bg: #0b1220;
-      --panel: #121d2e;
-      --panel-2: #172438;
-      --line: #2a3a51;
-      --text: #edf3fb;
-      --muted: #9eafc5;
-      --accent: #70b7ff;
-      --good: #43d39e;
-      --warn: #ffc56e;
-      --bad: #ff8585;
-    }
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      min-height: 100vh;
-      background: radial-gradient(circle at 12% 0%, #152943 0, var(--bg) 42rem);
-      color: var(--text);
-      font: 15px/1.55 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    }
-    main { width: min(900px, calc(100% - 32px)); margin: 42px auto; }
-    header { margin-bottom: 24px; }
-    .eyebrow { color: var(--accent); font-size: 12px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
-    h1 { margin: 7px 0 8px; font-size: clamp(25px, 5vw, 36px); line-height: 1.2; }
-    p { margin: 7px 0; color: var(--muted); }
-    .card {
-      background: color-mix(in srgb, var(--panel) 94%, transparent);
-      border: 1px solid var(--line);
-      border-radius: 16px;
-      padding: 20px;
-      margin: 16px 0;
-      box-shadow: 0 18px 45px #0003;
-    }
-    label { display: block; margin: 0 0 7px; color: #c8d7e9; font-size: 13px; font-weight: 650; }
-    input {
-      display: block; width: 100%; min-height: 46px; padding: 10px 12px;
-      border-radius: 9px; border: 1px solid #3a4e69; background: #0b1524;
-      color: var(--text); font: 14px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-    }
-    input:focus { outline: 2px solid #70b7ff66; border-color: var(--accent); }
-    .meta { display: grid; grid-template-columns: 130px 1fr; gap: 7px 12px; margin-top: 16px; font-size: 13px; }
-    .meta dt { color: var(--muted); }
-    .meta dd { margin: 0; overflow-wrap: anywhere; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
-    .actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
-    button {
-      min-height: 42px; border: 1px solid transparent; border-radius: 9px;
-      padding: 9px 15px; cursor: pointer; font-weight: 700; color: #081321;
-      background: var(--accent);
-    }
-    button.secondary { color: var(--text); background: var(--panel-2); border-color: var(--line); }
-    button:disabled { cursor: not-allowed; opacity: .45; }
-    .status { display: flex; align-items: center; gap: 10px; margin-top: 16px; padding: 12px 13px; border-radius: 10px; background: #0b1524; border: 1px solid var(--line); }
-    .dot { width: 10px; height: 10px; border-radius: 50%; background: #77869a; flex: 0 0 auto; }
-    .status[data-state="success"] .dot { background: var(--good); box-shadow: 0 0 12px #43d39e88; }
-    .status[data-state="warning"] .dot { background: var(--warn); }
-    .status[data-state="error"] .dot { background: var(--bad); }
-    #statusText { font-weight: 700; }
-    .notice { border-left: 3px solid var(--warn); padding: 9px 12px; background: #ffc56e0d; color: #d9e3ef; border-radius: 0 8px 8px 0; font-size: 13px; }
-    .log {
-      min-height: 210px; max-height: 340px; overflow: auto; padding: 13px;
-      background: #08111e; border: 1px solid var(--line); border-radius: 10px;
-      color: #c6d5e8; white-space: pre-wrap; overflow-wrap: anywhere;
-      font: 12px/1.65 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-    }
-    .small { font-size: 12px; }
-    a { color: var(--accent); }
-    footer { margin: 24px 0 36px; color: var(--muted); font-size: 12px; }
-    @media (max-width: 560px) {
-      main { margin: 24px auto; }
-      .card { padding: 15px; }
-      .meta { grid-template-columns: 1fr; gap: 3px; }
-      .meta dd { margin-bottom: 8px; }
-      .actions button { flex: 1 1 130px; }
-    }
+    :root { color-scheme: light dark; --bg:#0b1220; --panel:#121c2d; --line:#26364d; --muted:#a8b4c7; --text:#edf3fb; --blue:#79aefc; --green:#54d69a; --red:#ff7c83; --amber:#f5c56c; }
+    * { box-sizing:border-box; }
+    body { margin:0; padding:32px 16px; background:var(--bg); color:var(--text); font:15px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif; }
+    main { max-width:820px; margin:0 auto; }
+    h1 { margin:0 0 8px; font-size:26px; }
+    p { color:var(--muted); }
+    .panel { background:var(--panel); border:1px solid var(--line); border-radius:16px; padding:20px; margin:18px 0; }
+    .row { display:flex; gap:12px; flex-wrap:wrap; align-items:center; }
+    button { border:0; border-radius:10px; padding:12px 18px; background:var(--blue); color:#08111f; font-weight:700; cursor:pointer; }
+    button:disabled { opacity:.5; cursor:not-allowed; }
+    .kv { display:grid; grid-template-columns:150px 1fr; gap:8px 14px; }
+    .k { color:var(--muted); }
+    code { overflow-wrap:anywhere; color:#c4d7f6; }
+    #status { font-weight:700; }
+    #log { background:#070d17; border:1px solid var(--line); border-radius:10px; padding:14px; min-height:190px; max-height:420px; overflow:auto; white-space:pre-wrap; overflow-wrap:anywhere; font:12px/1.6 ui-monospace,SFMono-Regular,Consolas,monospace; }
+    .ok { color:var(--green); } .bad { color:var(--red); } .warn { color:var(--amber); }
+    .note { font-size:13px; }
+    @media (max-width:520px) { .kv { grid-template-columns:1fr; gap:2px; } .k { margin-top:7px; } }
   </style>
 </head>
 <body>
 <main>
-  <header>
-    <div class="eyebrow">Browser-only diagnostic · no account login</div>
-    <h1>FTMO WebSocket Origin 測試</h1>
-    <p>測試 FTMO MT5 Web Terminal 的 WebSocket 是否接受這個 GitHub Pages 網站的來源（Origin）。不會登入帳戶、不會傳送帳密，也不會下單。</p>
-  </header>
+  <h1>FTMO MT5 Bootstrap Diagnostic</h1>
+  <p>下一階段測試：在 GitHub Pages 網頁中完成 MT5 Web Terminal 的加密 Bootstrap。此測試不登入帳戶、不讀取帳戶資料，也不會下單。</p>
 
-  <section class="card">
-    <label for="endpoint">WebSocket Endpoint（必須是 wss://）</label>
-    <input id="endpoint" type="url" spellcheck="false" autocomplete="off"
-      value="wss://mt5demowebterminal.ftmo.com/terminal">
-
-    <dl class="meta">
-      <dt>本頁 Origin</dt><dd id="originValue">讀取中…</dd>
-      <dt>瀏覽器來源</dt><dd id="sourceValue">讀取中…</dd>
-      <dt>測試內容</dt><dd>只建立 WebSocket 連線，不傳送應用程式封包</dd>
-    </dl>
-
-    <div class="status" id="statusBox" data-state="idle" role="status" aria-live="polite">
-      <span class="dot"></span><span id="statusText">尚未測試</span>
+  <section class="panel">
+    <div class="kv">
+      <div class="k">Page Origin</div><div><code id="origin"></code></div>
+      <div class="k">WebSocket Endpoint</div><div><code id="endpoint"></code></div>
+      <div class="k">Protocol action</div><div><code>cmd=0 · encrypted bootstrap key exchange</code></div>
+      <div class="k">Status</div><div id="status">尚未測試</div>
+      <div class="k">Server build</div><div id="build">—</div>
+      <div class="k">Session key length</div><div id="keylen">—</div>
     </div>
-
-    <div class="actions">
-      <button id="connectBtn" type="button">測試 WebSocket 握手</button>
-      <button id="disconnectBtn" class="secondary" type="button" disabled>中斷連線</button>
-      <button id="copyBtn" class="secondary" type="button">複製診斷紀錄</button>
-      <button id="clearBtn" class="secondary" type="button">清除紀錄</button>
+    <div class="row" style="margin-top:20px">
+      <button id="start">執行 Bootstrap 測試</button>
+      <button id="copy" type="button">複製診斷紀錄</button>
     </div>
   </section>
 
-  <section class="card">
-    <h2 style="font-size:17px;margin:0 0 9px">測試紀錄</h2>
-    <div id="log" class="log" aria-live="polite">尚無紀錄。</div>
+  <section class="panel">
+    <strong>診斷紀錄（UTC）</strong>
+    <div id="log" role="log" aria-live="polite" style="margin-top:10px"></div>
   </section>
 
-  <section class="card">
-    <h2 style="font-size:17px;margin:0 0 10px">如何判讀</h2>
-    <p><strong style="color:var(--good)">「握手成功」</strong>：瀏覽器觸發 WebSocket <code>open</code> 事件，表示伺服器接受了這個頁面來源的 WebSocket 握手。這只證明傳輸層連線成功，尚未測試 MT5 加密初始化、登入或歷史 K 線請求。</p>
-    <p><strong style="color:var(--warn)">「連線失敗」</strong>：可能是 Origin 被拒絕、Endpoint 不正確、伺服器不可用、TLS/DNS 問題或網路政策限制。瀏覽器通常不會向 JavaScript 公開握手失敗的 HTTP 狀態碼，因此單靠這個頁面不能斷定是哪一種原因。</p>
-    <div class="notice">請從已部署的 GitHub Pages HTTPS 網址執行測試。若直接以 file:// 開啟，測到的不是 GitHub Pages Origin。請勿在此頁輸入 MT5 密碼、Cookie 或 Token。</div>
-  </section>
-
-  <footer>
-    這是獨立的靜態診斷頁，沒有外部 JavaScript 套件、分析追蹤或帳戶登入功能。頁面只記錄連線狀態、時間、Close code 及訊息大小，不會顯示 WebSocket 訊息內容。
-  </footer>
+  <p class="note">安全提醒：本測試只使用 MT5 Web Terminal 公開協定中的初始 Bootstrap 金鑰進行金鑰交換，不會要求或保存 MT5 帳號、密碼、Cookie 或登入 Token。若成功，紀錄只顯示回應代碼、伺服器 build 欄位及金鑰長度，不顯示 session token 或 session key。</p>
 </main>
 <script>
 (() => {
-  const endpointInput = document.getElementById('endpoint');
-  const originValue = document.getElementById('originValue');
-  const sourceValue = document.getElementById('sourceValue');
-  const statusBox = document.getElementById('statusBox');
-  const statusText = document.getElementById('statusText');
-  const logBox = document.getElementById('log');
-  const connectBtn = document.getElementById('connectBtn');
-  const disconnectBtn = document.getElementById('disconnectBtn');
-  const copyBtn = document.getElementById('copyBtn');
-  const clearBtn = document.getElementById('clearBtn');
-
-  let socket = null;
-  let connectionTimer = null;
+  'use strict';
+  const ENDPOINT = 'wss://mt5demowebterminal.ftmo.com/terminal';
+  // Obfuscated initial key published by the reverse-engineered pymt5 protocol reference.
+  // It is a protocol bootstrap constant, not an account credential.
+  const OBFUSCATED_KEY = '13ef13b2b76dd8:5795gdcfb2fdc1ge85bf768f54773d22fff996e3ge75g5:75';
+  const originEl = document.getElementById('origin');
+  const endpointEl = document.getElementById('endpoint');
+  const statusEl = document.getElementById('status');
+  const buildEl = document.getElementById('build');
+  const keyLenEl = document.getElementById('keylen');
+  const logEl = document.getElementById('log');
+  const startBtn = document.getElementById('start');
+  const copyBtn = document.getElementById('copy');
+  let running = false;
   let lines = [];
-  let handshakeAccepted = false;
 
-  const nowUTC = () => new Date().toISOString();
+  originEl.textContent = location.origin;
+  endpointEl.textContent = ENDPOINT;
 
-  function log(message) {
-    const line = `[${nowUTC()}] ${message}`;
+  function utcNow() { return new Date().toISOString(); }
+  function log(message, cls='') {
+    const line = `[${utcNow()}] ${message}`;
     lines.push(line);
-    if (lines.length > 250) lines = lines.slice(-250);
-    logBox.textContent = lines.join('\n');
-    logBox.scrollTop = logBox.scrollHeight;
+    const div = document.createElement('div');
+    if (cls) div.className = cls;
+    div.textContent = line;
+    logEl.appendChild(div);
+    logEl.scrollTop = logEl.scrollHeight;
   }
-
-  function setStatus(state, message) {
-    statusBox.dataset.state = state;
-    statusText.textContent = message;
+  function setStatus(message, cls='') {
+    statusEl.textContent = message;
+    statusEl.className = cls;
   }
-
-  function setBusy(busy) {
-    connectBtn.disabled = busy;
-    disconnectBtn.disabled = !busy;
+  function decodeHex(hex) {
+    if (hex.length % 2) throw new Error('Initial key hex length is invalid');
+    const out = new Uint8Array(hex.length / 2);
+    for (let i = 0; i < out.length; i++) out[i] = parseInt(hex.slice(i*2, i*2+2), 16);
+    return out;
   }
-
-  originValue.textContent = location.origin || '(opaque / null origin)';
-  sourceValue.textContent = location.protocol === 'file:'
-    ? 'file://（不是 GitHub Pages 網站來源）'
-    : location.protocol + '//' + location.host;
-
-  if (location.protocol === 'file:') {
-    setStatus('warning', '目前以本機 file:// 開啟；請部署到 GitHub Pages 後再測試');
-    log('提示：本頁目前不是 GitHub Pages Origin。');
-  } else if (location.protocol !== 'https:') {
-    setStatus('warning', '建議從 HTTPS 網站執行測試');
-    log('警告：目前頁面不是 HTTPS。');
-  } else {
-    setStatus('idle', '已就緒，尚未建立連線');
-    log('診斷頁已載入。');
-  }
-
-  function disconnect(reason = '由使用者中斷') {
-    if (connectionTimer) {
-      clearTimeout(connectionTimer);
-      connectionTimer = null;
+  function decodeInitialKey() {
+    let decoded = '';
+    for (const ch of OBFUSCATED_KEY) {
+      const cp = ch.codePointAt(0);
+      if (cp === 28) decoded += '&';
+      else if (cp === 23) decoded += '!';
+      else decoded += String.fromCodePoint(cp - 1);
     }
-    if (socket && (socket.readyState === WebSocket.CONNECTING || socket.readyState === WebSocket.OPEN)) {
-      log(reason);
-      socket.close(1000, 'Diagnostic finished');
-    }
+    if (!/^[0-9a-f]+$/i.test(decoded)) throw new Error('Initial key decoding did not produce hex');
+    return decodeHex(decoded);
+  }
+  function concatBytes(...arrays) {
+    const total = arrays.reduce((n, a) => n + a.length, 0);
+    const out = new Uint8Array(total);
+    let offset = 0;
+    for (const a of arrays) { out.set(a, offset); offset += a.length; }
+    return out;
+  }
+  function u16le(value) {
+    const b = new Uint8Array(2);
+    new DataView(b.buffer).setUint16(0, value, true);
+    return b;
+  }
+  function u32le(value) {
+    const b = new Uint8Array(4);
+    new DataView(b.buffer).setUint32(0, value, true);
+    return b;
+  }
+  async function importAesKey(raw) {
+    return crypto.subtle.importKey('raw', raw, {name:'AES-CBC'}, false, ['encrypt','decrypt']);
+  }
+  async function encryptOuterCommand(command, payload, key) {
+    const prefix = crypto.getRandomValues(new Uint8Array(2));
+    const plainCommand = concatBytes(prefix, u16le(command), payload);
+    const imported = await importAesKey(key);
+    // Web Crypto AES-CBC applies/removes the protocol's PKCS#7 padding.
+    const encrypted = new Uint8Array(await crypto.subtle.encrypt(
+      {name:'AES-CBC', iv:new Uint8Array(16)}, imported, plainCommand
+    ));
+    const outer = concatBytes(u32le(encrypted.length), u32le(1), encrypted);
+    return outer;
+  }
+  async function decryptOuterFrame(frame, key) {
+    const bytes = frame instanceof Uint8Array ? frame : new Uint8Array(frame);
+    if (bytes.length < 24) throw new Error(`Binary response too short: ${bytes.length} bytes`);
+    const dv = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+    const bodyLength = dv.getUint32(0, true);
+    const version = dv.getUint32(4, true);
+    if (bodyLength !== bytes.length - 8) throw new Error(`Outer length mismatch: header=${bodyLength}, actual=${bytes.length - 8}`);
+    if (version !== 1) throw new Error(`Unexpected outer protocol version: ${version}`);
+    const imported = await importAesKey(key);
+    const plain = new Uint8Array(await crypto.subtle.decrypt(
+      {name:'AES-CBC', iv:new Uint8Array(16)}, imported, bytes.slice(8)
+    ));
+    if (plain.length < 5) throw new Error(`Decrypted response too short: ${plain.length} bytes`);
+    const pdv = new DataView(plain.buffer, plain.byteOffset, plain.byteLength);
+    return {
+      command: pdv.getUint16(2, true),
+      code: plain[4],
+      body: plain.slice(5),
+      plainLength: plain.length
+    };
   }
 
-  connectBtn.addEventListener('click', () => {
-    if (socket && (socket.readyState === WebSocket.CONNECTING || socket.readyState === WebSocket.OPEN)) {
-      return;
+  async function runBootstrap() {
+    if (running) return;
+    running = true;
+    startBtn.disabled = true;
+    buildEl.textContent = '—';
+    keyLenEl.textContent = '—';
+    setStatus('正在連線…');
+    lines = [];
+    logEl.replaceChildren();
+    log('Bootstrap test started. No account credentials will be sent.');
+    if (!window.isSecureContext || !crypto.subtle) {
+      log('此頁面不是 Secure Context，或瀏覽器不支援 Web Crypto。請從 HTTPS GitHub Pages 開啟。', 'bad');
+      setStatus('瀏覽器環境不符合要求', 'bad');
+      running = false; startBtn.disabled = false; return;
     }
 
-    const endpoint = endpointInput.value.trim();
-    let parsed;
+    let ws;
+    let timeoutId;
+    let completed = false;
     try {
-      parsed = new URL(endpoint);
-    } catch (_) {
-      setStatus('error', 'Endpoint 格式不正確');
-      log('錯誤：無法解析 Endpoint URL。');
-      return;
+      const initialKey = decodeInitialKey();
+      log(`Initial bootstrap cipher prepared (AES key length: ${initialKey.length} bytes).`);
+      ws = new WebSocket(ENDPOINT);
+      ws.binaryType = 'arraybuffer';
+
+      timeoutId = setTimeout(() => {
+        if (!completed) {
+          log('Timeout: no bootstrap response received within 12 seconds.', 'bad');
+          setStatus('Bootstrap 回應逾時', 'bad');
+          try { ws.close(); } catch (_) {}
+          finish();
+        }
+      }, 12000);
+
+      ws.onopen = async () => {
+        log('WebSocket open. Sending encrypted cmd=0 bootstrap request.');
+        try {
+          const payload = new Uint8Array(64); // Initial 64-byte zero token.
+          const packet = await encryptOuterCommand(0, payload, initialKey);
+          if (ws.readyState !== WebSocket.OPEN) throw new Error('Socket closed before bootstrap packet could be sent');
+          ws.send(packet);
+          log(`Bootstrap request sent (${packet.length} bytes, binary).`);
+          setStatus('已送出 Bootstrap，等待伺服器回應…');
+        } catch (err) {
+          log(`Could not create/send bootstrap packet: ${err.message}`, 'bad');
+          setStatus('Bootstrap 封包傳送失敗', 'bad');
+          try { ws.close(); } catch (_) {}
+          finish();
+        }
+      };
+
+      ws.onmessage = async (event) => {
+        if (completed) return;
+        try {
+          let frame;
+          if (event.data instanceof ArrayBuffer) frame = new Uint8Array(event.data);
+          else if (event.data instanceof Blob) frame = new Uint8Array(await event.data.arrayBuffer());
+          else throw new Error(`Expected binary frame, received ${typeof event.data}`);
+          log(`Received binary frame (${frame.length} bytes).`);
+          const response = await decryptOuterFrame(frame, initialKey);
+          if (response.command !== 0) throw new Error(`Expected cmd=0 response, received cmd=${response.command}`);
+          log(`Bootstrap response decrypted. response_code=${response.code}.`);
+          if (response.code !== 0) {
+            setStatus(`伺服器拒絕 Bootstrap（code=${response.code}）`, 'bad');
+            log(`Bootstrap was rejected by server (code=${response.code}).`, 'bad');
+            completed = true;
+            try { ws.close(1000, 'bootstrap rejected'); } catch (_) {}
+            finish();
+            return;
+          }
+          if (response.body.length < 82) {
+            throw new Error(`Bootstrap body too short: ${response.body.length} bytes (need at least 82)`);
+          }
+          const dv = new DataView(response.body.buffer, response.body.byteOffset, response.body.byteLength);
+          const serverBuild = dv.getUint16(0, true);
+          const tokenLength = 64;
+          const sessionKeyLength = response.body.length - 66;
+          if (![16, 24, 32].includes(sessionKeyLength)) {
+            throw new Error(`Unexpected session AES key length: ${sessionKeyLength} bytes`);
+          }
+          buildEl.textContent = serverBuild ? String(serverBuild) : '未提供／0';
+          keyLenEl.textContent = `${sessionKeyLength} bytes`;
+          log(`Bootstrap key exchange successful. Server build field=${serverBuild || '0/unknown'}.` , 'ok');
+          log(`Session token length=${tokenLength} bytes; session AES key length=${sessionKeyLength} bytes. Secret values were not displayed.`, 'ok');
+          setStatus('Bootstrap 成功：已取得 Session Key', 'ok');
+          completed = true;
+          try { ws.close(1000, 'bootstrap test complete'); } catch (_) {}
+          finish();
+        } catch (err) {
+          log(`Could not validate bootstrap response: ${err.message}`, 'bad');
+          setStatus('收到資料，但 Bootstrap 解碼／驗證失敗', 'bad');
+          completed = true;
+          try { ws.close(); } catch (_) {}
+          finish();
+        }
+      };
+
+      ws.onerror = () => {
+        log('WebSocket error event. Browser does not expose the detailed handshake error.', 'bad');
+        if (!completed) setStatus('WebSocket 發生錯誤', 'bad');
+      };
+
+      ws.onclose = (event) => {
+        log(`WebSocket closed: code=${event.code}, clean=${event.wasClean}, reason=${event.reason || '(none)'}.`, event.code === 1000 ? 'ok' : 'warn');
+        if (!completed && event.code !== 1000) {
+          setStatus(`連線中斷（code=${event.code}）`, 'bad');
+        }
+        finish();
+      };
+    } catch (err) {
+      log(`Bootstrap setup failed: ${err.message}`, 'bad');
+      setStatus('Bootstrap 測試失敗', 'bad');
+      finish();
     }
-    if (parsed.protocol !== 'wss:') {
-      setStatus('error', '只允許安全的 wss:// Endpoint');
-      log('錯誤：Endpoint 必須使用 wss://。');
-      return;
+
+    function finish() {
+      if (timeoutId) clearTimeout(timeoutId);
+      running = false;
+      startBtn.disabled = false;
     }
-    if (location.protocol === 'file:') {
-      log('注意：目前使用 file:// Origin；請部署到 GitHub Pages 才能驗證 GitHub Pages Origin。');
-    }
+  }
 
-    handshakeAccepted = false;
-    setBusy(true);
-    setStatus('warning', '正在嘗試 WebSocket 握手…');
-    log(`開始連線：${parsed.origin}${parsed.pathname}`);
-    log(`頁面 Origin：${location.origin}`);
-
-    try {
-      socket = new WebSocket(endpoint);
-      socket.binaryType = 'arraybuffer';
-    } catch (error) {
-      setBusy(false);
-      setStatus('error', '建立 WebSocket 物件失敗');
-      log(`建立失敗：${error.name || 'Error'}：${error.message || '無詳細訊息'}`);
-      return;
-    }
-
-    connectionTimer = setTimeout(() => {
-      if (socket && socket.readyState === WebSocket.CONNECTING) {
-        setStatus('error', '連線逾時，尚未完成握手');
-        log('逾時：15 秒內沒有收到 open 事件。瀏覽器不會公開握手拒絕的 HTTP 狀態碼。');
-        socket.close();
-      }
-    }, 15000);
-
-    socket.addEventListener('open', () => {
-      handshakeAccepted = true;
-      if (connectionTimer) clearTimeout(connectionTimer);
-      connectionTimer = null;
-      setStatus('success', 'WebSocket 握手成功：伺服器接受了此頁面的 Origin');
-      log('成功：收到 WebSocket open 事件。握手已完成；此結果不代表 MT5 應用程式協定或登入成功。');
-    });
-
-    socket.addEventListener('message', (event) => {
-      let size = 0;
-      let kind = typeof event.data;
-      if (typeof event.data === 'string') size = new Blob([event.data]).size;
-      else if (event.data instanceof ArrayBuffer) size = event.data.byteLength;
-      else if (event.data instanceof Blob) size = event.data.size;
-      log(`收到伺服器資料：type=${kind}, bytes=${size}（內容刻意不顯示）`);
-    });
-
-    socket.addEventListener('error', () => {
-      log('WebSocket error 事件。瀏覽器基於安全限制不會提供更細的握手錯誤原因。');
-      if (!handshakeAccepted) {
-        setStatus('error', 'WebSocket 未能完成握手；請查看判讀說明');
-      }
-    });
-
-    socket.addEventListener('close', (event) => {
-      if (connectionTimer) clearTimeout(connectionTimer);
-      connectionTimer = null;
-      setBusy(false);
-      const reason = event.reason ? `, reason=${event.reason}` : '';
-      log(`連線關閉：code=${event.code}, clean=${event.wasClean}${reason}`);
-      if (handshakeAccepted) {
-        setStatus('success', '握手曾成功；連線目前已關閉（未測試 MT5 登入）');
-      } else {
-        setStatus('error', '握手未成功；請依判讀說明排查');
-      }
-    });
-  });
-
-  disconnectBtn.addEventListener('click', () => disconnect());
-
+  startBtn.addEventListener('click', runBootstrap);
   copyBtn.addEventListener('click', async () => {
     const report = [
-      'FTMO WebSocket Origin diagnostic',
+      'FTMO MT5 Bootstrap Diagnostic',
       `Page origin: ${location.origin}`,
-      `Endpoint: ${endpointInput.value.trim()}`,
-      `Generated UTC: ${nowUTC()}`,
+      `Endpoint: ${ENDPOINT}`,
+      `Generated UTC: ${utcNow()}`,
       ...lines
     ].join('\n');
     try {
       await navigator.clipboard.writeText(report);
-      setStatus(handshakeAccepted ? 'success' : 'idle', '診斷紀錄已複製');
+      log('Diagnostic log copied to clipboard.', 'ok');
     } catch (_) {
-      log('無法使用剪貼簿 API；請手動選取紀錄複製。');
+      log('Clipboard access unavailable. Select and copy the log manually.', 'warn');
     }
   });
-
-  clearBtn.addEventListener('click', () => {
-    lines = [];
-    logBox.textContent = '尚無紀錄。';
-    log('紀錄已清除。');
-  });
-
-  window.addEventListener('beforeunload', () => {
-    if (socket && socket.readyState === WebSocket.OPEN) socket.close(1000, 'Page closing');
-  });
+  log('Bootstrap diagnostic page loaded.');
 })();
 </script>
 </body>

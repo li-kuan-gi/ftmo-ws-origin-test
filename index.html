@@ -1,301 +1,100 @@
 <!doctype html>
 <html lang="zh-Hant">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>FTMO MT5 Bootstrap Diagnostic</title>
-  <style>
-    :root { color-scheme: light dark; --bg:#0b1220; --panel:#121c2d; --line:#26364d; --muted:#a8b4c7; --text:#edf3fb; --blue:#79aefc; --green:#54d69a; --red:#ff7c83; --amber:#f5c56c; }
-    * { box-sizing:border-box; }
-    body { margin:0; padding:32px 16px; background:var(--bg); color:var(--text); font:15px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif; }
-    main { max-width:820px; margin:0 auto; }
-    h1 { margin:0 0 8px; font-size:26px; }
-    p { color:var(--muted); }
-    .panel { background:var(--panel); border:1px solid var(--line); border-radius:16px; padding:20px; margin:18px 0; }
-    .row { display:flex; gap:12px; flex-wrap:wrap; align-items:center; }
-    button { border:0; border-radius:10px; padding:12px 18px; background:var(--blue); color:#08111f; font-weight:700; cursor:pointer; }
-    button:disabled { opacity:.5; cursor:not-allowed; }
-    .kv { display:grid; grid-template-columns:150px 1fr; gap:8px 14px; }
-    .k { color:var(--muted); }
-    code { overflow-wrap:anywhere; color:#c4d7f6; }
-    #status { font-weight:700; }
-    #log { background:#070d17; border:1px solid var(--line); border-radius:10px; padding:14px; min-height:190px; max-height:420px; overflow:auto; white-space:pre-wrap; overflow-wrap:anywhere; font:12px/1.6 ui-monospace,SFMono-Regular,Consolas,monospace; }
-    .ok { color:var(--green); } .bad { color:var(--red); } .warn { color:var(--amber); }
-    .note { font-size:13px; }
-    @media (max-width:520px) { .kv { grid-template-columns:1fr; gap:2px; } .k { margin-top:7px; } }
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>FTMO MT5 Bootstrap Diagnostic v3</title>
+<style>
+:root{color-scheme:dark;--bg:#0b1220;--panel:#121c2d;--line:#26364d;--muted:#a8b4c7;--text:#edf3fb;--blue:#79aefc;--green:#54d69a;--red:#ff7c83;--amber:#f5c56c}
+*{box-sizing:border-box}body{margin:0;padding:30px 16px;background:var(--bg);color:var(--text);font:15px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif}main{max-width:850px;margin:auto}h1{margin:0 0 8px;font-size:25px}.panel{background:var(--panel);border:1px solid var(--line);border-radius:15px;padding:19px;margin:17px 0}.muted{color:var(--muted)}.kv{display:grid;grid-template-columns:160px 1fr;gap:8px 13px}.k{color:var(--muted)}code{overflow-wrap:anywhere;color:#c4d7f6}button{border:0;border-radius:9px;padding:12px 17px;background:var(--blue);color:#08111f;font-weight:700;cursor:pointer}button:disabled{opacity:.5;cursor:not-allowed}.row{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}#log{background:#070d17;border:1px solid var(--line);border-radius:10px;padding:14px;min-height:230px;max-height:480px;overflow:auto;white-space:pre-wrap;overflow-wrap:anywhere;font:12px/1.65 ui-monospace,SFMono-Regular,Consolas,monospace}.ok{color:var(--green)}.bad{color:var(--red)}.warn{color:var(--amber)}.small{font-size:13px}@media(max-width:560px){.kv{grid-template-columns:1fr;gap:2px}.k{margin-top:7px}}
+</style>
 </head>
 <body>
 <main>
-  <h1>FTMO MT5 Bootstrap Diagnostic</h1>
-  <p>下一階段測試：在 GitHub Pages 網頁中完成 MT5 Web Terminal 的加密 Bootstrap。此測試不登入帳戶、不讀取帳戶資料，也不會下單。</p>
-
-  <section class="panel">
-    <div class="kv">
-      <div class="k">Page Origin</div><div><code id="origin"></code></div>
-      <div class="k">WebSocket Endpoint</div><div><code id="endpoint"></code></div>
-      <div class="k">Protocol action</div><div><code>cmd=0 · encrypted bootstrap key exchange</code></div>
-      <div class="k">Status</div><div id="status">尚未測試</div>
-      <div class="k">Server build</div><div id="build">—</div>
-      <div class="k">Session key length</div><div id="keylen">—</div>
-    </div>
-    <div class="row" style="margin-top:20px">
-      <button id="start">執行 Bootstrap 測試</button>
-      <button id="copy" type="button">複製診斷紀錄</button>
-    </div>
-  </section>
-
-  <section class="panel">
-    <strong>診斷紀錄（UTC）</strong>
-    <div id="log" role="log" aria-live="polite" style="margin-top:10px"></div>
-  </section>
-
-  <p class="note">安全提醒：本測試只使用 MT5 Web Terminal 公開協定中的初始 Bootstrap 金鑰進行金鑰交換，不會要求或保存 MT5 帳號、密碼、Cookie 或登入 Token。若成功，紀錄只顯示回應代碼、伺服器 build 欄位及金鑰長度，不顯示 session token 或 session key。</p>
+<h1>FTMO MT5 Bootstrap Diagnostic v3</h1>
+<p class="muted">本版會額外檢查回應的 8-byte 外層標頭。如果版本欄位不是文件記載的 1，仍會在長度與 AES 區塊格式合理時嘗試解密，藉此分辨「外層版本差異」與「加密／封包本身不相容」。不會登入帳戶、不會傳送帳密，也不會下單。</p>
+<section class="panel">
+<div class="kv">
+<div class="k">Page Origin</div><div><code id="origin"></code></div>
+<div class="k">WebSocket Endpoint</div><div><code id="endpoint"></code></div>
+<div class="k">Action</div><div><code>cmd=0 · encrypted bootstrap key exchange</code></div>
+<div class="k">Status</div><div id="status">尚未測試</div>
+<div class="k">Outer header</div><div id="header">—</div>
+<div class="k">Decrypted response</div><div id="decrypted">—</div>
+<div class="k">Session AES key length</div><div id="keylen">—</div>
+</div>
+<div class="row"><button id="start">執行 Bootstrap v3 測試</button><button id="copy" type="button">複製診斷紀錄</button></div>
+</section>
+<section class="panel"><strong>診斷紀錄（UTC）</strong><div id="log" role="log" aria-live="polite" style="margin-top:10px"></div></section>
+<p class="muted small">安全：診斷紀錄只顯示外層 8-byte 標頭、回應 command/status、保留欄位及金鑰長度；不顯示或複製加密 payload、Session Token、Session AES Key、Cookie 或帳戶資料。請勿自行加入原始封包輸出。</p>
 </main>
 <script>
-(() => {
-  'use strict';
-  const ENDPOINT = 'wss://mt5demowebterminal.ftmo.com/terminal';
-  // Obfuscated initial key published by the reverse-engineered pymt5 protocol reference.
-  // It is a protocol bootstrap constant, not an account credential.
-  const OBFUSCATED_KEY = '13ef13b2b76dd8:5795gdcfb2fdc1ge85bf768f54773d22fff996e3ge75g5:75';
-  const originEl = document.getElementById('origin');
-  const endpointEl = document.getElementById('endpoint');
-  const statusEl = document.getElementById('status');
-  const buildEl = document.getElementById('build');
-  const keyLenEl = document.getElementById('keylen');
-  const logEl = document.getElementById('log');
-  const startBtn = document.getElementById('start');
-  const copyBtn = document.getElementById('copy');
-  let running = false;
-  let lines = [];
-
-  originEl.textContent = location.origin;
-  endpointEl.textContent = ENDPOINT;
-
-  function utcNow() { return new Date().toISOString(); }
-  function log(message, cls='') {
-    const line = `[${utcNow()}] ${message}`;
-    lines.push(line);
-    const div = document.createElement('div');
-    if (cls) div.className = cls;
-    div.textContent = line;
-    logEl.appendChild(div);
-    logEl.scrollTop = logEl.scrollHeight;
-  }
-  function setStatus(message, cls='') {
-    statusEl.textContent = message;
-    statusEl.className = cls;
-  }
-  function decodeHex(hex) {
-    if (hex.length % 2) throw new Error('Initial key hex length is invalid');
-    const out = new Uint8Array(hex.length / 2);
-    for (let i = 0; i < out.length; i++) out[i] = parseInt(hex.slice(i*2, i*2+2), 16);
-    return out;
-  }
-  function decodeInitialKey() {
-    let decoded = '';
-    for (const ch of OBFUSCATED_KEY) {
-      const cp = ch.codePointAt(0);
-      if (cp === 28) decoded += '&';
-      else if (cp === 23) decoded += '!';
-      else decoded += String.fromCodePoint(cp - 1);
-    }
-    if (!/^[0-9a-f]+$/i.test(decoded)) throw new Error('Initial key decoding did not produce hex');
-    return decodeHex(decoded);
-  }
-  function concatBytes(...arrays) {
-    const total = arrays.reduce((n, a) => n + a.length, 0);
-    const out = new Uint8Array(total);
-    let offset = 0;
-    for (const a of arrays) { out.set(a, offset); offset += a.length; }
-    return out;
-  }
-  function u16le(value) {
-    const b = new Uint8Array(2);
-    new DataView(b.buffer).setUint16(0, value, true);
-    return b;
-  }
-  function u32le(value) {
-    const b = new Uint8Array(4);
-    new DataView(b.buffer).setUint32(0, value, true);
-    return b;
-  }
-  async function importAesKey(raw) {
-    return crypto.subtle.importKey('raw', raw, {name:'AES-CBC'}, false, ['encrypt','decrypt']);
-  }
-  async function encryptOuterCommand(command, payload, key) {
-    const prefix = crypto.getRandomValues(new Uint8Array(2));
-    const plainCommand = concatBytes(prefix, u16le(command), payload);
-    const imported = await importAesKey(key);
-    // Web Crypto AES-CBC applies/removes the protocol's PKCS#7 padding.
-    const encrypted = new Uint8Array(await crypto.subtle.encrypt(
-      {name:'AES-CBC', iv:new Uint8Array(16)}, imported, plainCommand
-    ));
-    const outer = concatBytes(u32le(encrypted.length), u32le(1), encrypted);
-    return outer;
-  }
-  async function decryptOuterFrame(frame, key) {
-    const bytes = frame instanceof Uint8Array ? frame : new Uint8Array(frame);
-    if (bytes.length < 24) throw new Error(`Binary response too short: ${bytes.length} bytes`);
-    const dv = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
-    const bodyLength = dv.getUint32(0, true);
-    const version = dv.getUint32(4, true);
-    if (bodyLength !== bytes.length - 8) throw new Error(`Outer length mismatch: header=${bodyLength}, actual=${bytes.length - 8}`);
-    if (version !== 1) throw new Error(`Unexpected outer protocol version: ${version}`);
-    const imported = await importAesKey(key);
-    const plain = new Uint8Array(await crypto.subtle.decrypt(
-      {name:'AES-CBC', iv:new Uint8Array(16)}, imported, bytes.slice(8)
-    ));
-    if (plain.length < 5) throw new Error(`Decrypted response too short: ${plain.length} bytes`);
-    const pdv = new DataView(plain.buffer, plain.byteOffset, plain.byteLength);
-    return {
-      command: pdv.getUint16(2, true),
-      code: plain[4],
-      body: plain.slice(5),
-      plainLength: plain.length
-    };
-  }
-
-  async function runBootstrap() {
-    if (running) return;
-    running = true;
-    startBtn.disabled = true;
-    buildEl.textContent = '—';
-    keyLenEl.textContent = '—';
-    setStatus('正在連線…');
-    lines = [];
-    logEl.replaceChildren();
-    log('Bootstrap test started. No account credentials will be sent.');
-    if (!window.isSecureContext || !crypto.subtle) {
-      log('此頁面不是 Secure Context，或瀏覽器不支援 Web Crypto。請從 HTTPS GitHub Pages 開啟。', 'bad');
-      setStatus('瀏覽器環境不符合要求', 'bad');
-      running = false; startBtn.disabled = false; return;
-    }
-
-    let ws;
-    let timeoutId;
-    let completed = false;
-    try {
-      const initialKey = decodeInitialKey();
-      log(`Initial bootstrap cipher prepared (AES key length: ${initialKey.length} bytes).`);
-      ws = new WebSocket(ENDPOINT);
-      ws.binaryType = 'arraybuffer';
-
-      timeoutId = setTimeout(() => {
-        if (!completed) {
-          log('Timeout: no bootstrap response received within 12 seconds.', 'bad');
-          setStatus('Bootstrap 回應逾時', 'bad');
-          try { ws.close(); } catch (_) {}
-          finish();
-        }
-      }, 12000);
-
-      ws.onopen = async () => {
-        log('WebSocket open. Sending encrypted cmd=0 bootstrap request.');
-        try {
-          const payload = new Uint8Array(64); // Initial 64-byte zero token.
-          const packet = await encryptOuterCommand(0, payload, initialKey);
-          if (ws.readyState !== WebSocket.OPEN) throw new Error('Socket closed before bootstrap packet could be sent');
-          ws.send(packet);
-          log(`Bootstrap request sent (${packet.length} bytes, binary).`);
-          setStatus('已送出 Bootstrap，等待伺服器回應…');
-        } catch (err) {
-          log(`Could not create/send bootstrap packet: ${err.message}`, 'bad');
-          setStatus('Bootstrap 封包傳送失敗', 'bad');
-          try { ws.close(); } catch (_) {}
-          finish();
-        }
-      };
-
-      ws.onmessage = async (event) => {
-        if (completed) return;
-        try {
-          let frame;
-          if (event.data instanceof ArrayBuffer) frame = new Uint8Array(event.data);
-          else if (event.data instanceof Blob) frame = new Uint8Array(await event.data.arrayBuffer());
-          else throw new Error(`Expected binary frame, received ${typeof event.data}`);
-          log(`Received binary frame (${frame.length} bytes).`);
-          const response = await decryptOuterFrame(frame, initialKey);
-          if (response.command !== 0) throw new Error(`Expected cmd=0 response, received cmd=${response.command}`);
-          log(`Bootstrap response decrypted. response_code=${response.code}.`);
-          if (response.code !== 0) {
-            setStatus(`伺服器拒絕 Bootstrap（code=${response.code}）`, 'bad');
-            log(`Bootstrap was rejected by server (code=${response.code}).`, 'bad');
-            completed = true;
-            try { ws.close(1000, 'bootstrap rejected'); } catch (_) {}
-            finish();
-            return;
-          }
-          if (response.body.length < 82) {
-            throw new Error(`Bootstrap body too short: ${response.body.length} bytes (need at least 82)`);
-          }
-          const dv = new DataView(response.body.buffer, response.body.byteOffset, response.body.byteLength);
-          const serverBuild = dv.getUint16(0, true);
-          const tokenLength = 64;
-          const sessionKeyLength = response.body.length - 66;
-          if (![16, 24, 32].includes(sessionKeyLength)) {
-            throw new Error(`Unexpected session AES key length: ${sessionKeyLength} bytes`);
-          }
-          buildEl.textContent = serverBuild ? String(serverBuild) : '未提供／0';
-          keyLenEl.textContent = `${sessionKeyLength} bytes`;
-          log(`Bootstrap key exchange successful. Server build field=${serverBuild || '0/unknown'}.` , 'ok');
-          log(`Session token length=${tokenLength} bytes; session AES key length=${sessionKeyLength} bytes. Secret values were not displayed.`, 'ok');
-          setStatus('Bootstrap 成功：已取得 Session Key', 'ok');
-          completed = true;
-          try { ws.close(1000, 'bootstrap test complete'); } catch (_) {}
-          finish();
-        } catch (err) {
-          log(`Could not validate bootstrap response: ${err.message}`, 'bad');
-          setStatus('收到資料，但 Bootstrap 解碼／驗證失敗', 'bad');
-          completed = true;
-          try { ws.close(); } catch (_) {}
-          finish();
-        }
-      };
-
-      ws.onerror = () => {
-        log('WebSocket error event. Browser does not expose the detailed handshake error.', 'bad');
-        if (!completed) setStatus('WebSocket 發生錯誤', 'bad');
-      };
-
-      ws.onclose = (event) => {
-        log(`WebSocket closed: code=${event.code}, clean=${event.wasClean}, reason=${event.reason || '(none)'}.`, event.code === 1000 ? 'ok' : 'warn');
-        if (!completed && event.code !== 1000) {
-          setStatus(`連線中斷（code=${event.code}）`, 'bad');
-        }
-        finish();
-      };
-    } catch (err) {
-      log(`Bootstrap setup failed: ${err.message}`, 'bad');
-      setStatus('Bootstrap 測試失敗', 'bad');
-      finish();
-    }
-
-    function finish() {
-      if (timeoutId) clearTimeout(timeoutId);
-      running = false;
-      startBtn.disabled = false;
-    }
-  }
-
-  startBtn.addEventListener('click', runBootstrap);
-  copyBtn.addEventListener('click', async () => {
-    const report = [
-      'FTMO MT5 Bootstrap Diagnostic',
-      `Page origin: ${location.origin}`,
-      `Endpoint: ${ENDPOINT}`,
-      `Generated UTC: ${utcNow()}`,
-      ...lines
-    ].join('\n');
-    try {
-      await navigator.clipboard.writeText(report);
-      log('Diagnostic log copied to clipboard.', 'ok');
-    } catch (_) {
-      log('Clipboard access unavailable. Select and copy the log manually.', 'warn');
-    }
-  });
-  log('Bootstrap diagnostic page loaded.');
+(()=>{'use strict';
+const ENDPOINT='wss://mt5demowebterminal.ftmo.com/terminal';
+// Public protocol bootstrap constant (obfuscated in the pymt5 reference implementation).
+const OBFUSCATED_KEY='13ef13b2b76dd8:5795gdcfb2fdc1ge85bf768f54773d22fff996e3ge75g5:75';
+const $=id=>document.getElementById(id);
+$('origin').textContent=location.origin;$('endpoint').textContent=ENDPOINT;
+let lines=[],running=false;
+const utc=()=>new Date().toISOString();
+function log(s,cls=''){const line=`[${utc()}] ${s}`;lines.push(line);const d=document.createElement('div');if(cls)d.className=cls;d.textContent=line;$('log').appendChild(d);$('log').scrollTop=$('log').scrollHeight;}
+function status(s,cls=''){$('status').textContent=s;$('status').className=cls;}
+function hex(bytes){return Array.from(bytes,b=>b.toString(16).padStart(2,'0')).join(' ');}
+function decodeHex(h){if(h.length%2)throw Error('Initial key hex has odd length');const a=new Uint8Array(h.length/2);for(let i=0;i<a.length;i++)a[i]=parseInt(h.slice(i*2,i*2+2),16);return a;}
+function initialKey(){let s='';for(const ch of OBFUSCATED_KEY){const cp=ch.codePointAt(0);if(cp===28)s+='&';else if(cp===23)s+='!';else s+=String.fromCodePoint(cp-1);}if(!/^[0-9a-f]+$/i.test(s))throw Error('Could not decode bootstrap key');return decodeHex(s);}
+function join(...parts){const n=parts.reduce((x,p)=>x+p.length,0),o=new Uint8Array(n);let at=0;for(const p of parts){o.set(p,at);at+=p.length;}return o;}
+function u16(n){const a=new Uint8Array(2);new DataView(a.buffer).setUint16(0,n,true);return a;}
+function u32(n){const a=new Uint8Array(4);new DataView(a.buffer).setUint32(0,n,true);return a;}
+async function aesKey(raw){return crypto.subtle.importKey('raw',raw,{name:'AES-CBC'},false,['encrypt','decrypt']);}
+async function makePacket(cmd,payload,key){const rnd=crypto.getRandomValues(new Uint8Array(2));const plain=join(rnd,u16(cmd),payload);const k=await aesKey(key);const cipher=new Uint8Array(await crypto.subtle.encrypt({name:'AES-CBC',iv:new Uint8Array(16)},k,plain));return join(u32(cipher.length),u32(1),cipher);}
+async function parseFrame(frame,key){
+ if(frame.length<24)throw Error(`Response too short (${frame.length} bytes)`);
+ const dv=new DataView(frame.buffer,frame.byteOffset,frame.byteLength);
+ const declared=dv.getUint32(0,true),version=dv.getUint32(4,true),actual=frame.length-8;
+ const headerHex=hex(frame.slice(0,8));
+ $('header').textContent=`length=${declared}; version=${version}; actual_body=${actual}; bytes=${headerHex}`;
+ log(`Outer header (8 bytes only): ${headerHex}`);
+ log(`Outer fields: declared_body_length=${declared}, actual_body_length=${actual}, version=${version}`);
+ if(declared!==actual)throw Error(`Outer body length mismatch (declared=${declared}, actual=${actual})`);
+ if(actual%16!==0)throw Error(`Encrypted body length ${actual} is not AES block aligned`);
+ if(version!==1)log(`Warning: protocol reference specifies outer version 1, but server replied with ${version}; attempting AES decryption for diagnosis only.`, 'warn');
+ const k=await aesKey(key);
+ const plain=new Uint8Array(await crypto.subtle.decrypt({name:'AES-CBC',iv:new Uint8Array(16)},k,frame.slice(8)));
+ if(plain.length<5)throw Error(`Decrypted plaintext too short (${plain.length} bytes)`);
+ const pdv=new DataView(plain.buffer,plain.byteOffset,plain.byteLength);
+ const command=pdv.getUint16(2,true),code=plain[4],body=plain.slice(5);
+ $('decrypted').textContent=`command=${command}; response_code=${code}; plaintext=${plain.length} bytes; body=${body.length} bytes`;
+ log(`AES-CBC decryption succeeded. command=${command}, response_code=${code}, plaintext_length=${plain.length}, body_length=${body.length}.`, 'ok');
+ if(command!==0)throw Error(`Decrypted command mismatch: expected 0, got ${command}`);
+ if(code!==0)throw Error(`Bootstrap server response code=${code} (not success)`);
+ if(body.length<66)throw Error(`Bootstrap body too short: ${body.length} bytes; expected at least 66 for reserved field + 64-byte token`);
+ const reserved=body.slice(0,2),sessionKeyLength=body.length-66;
+ const reservedValue=new DataView(reserved.buffer,reserved.byteOffset,2).getUint16(0,true);
+ $('keylen').textContent=`${sessionKeyLength} bytes`;
+ log(`Bootstrap response payload parsed: reserved_u16=${reservedValue}; session_token_length=64 bytes; session_key_length=${sessionKeyLength} bytes. Values are not displayed.`);
+ if([16,24,32].includes(sessionKeyLength)){
+  if(sessionKeyLength===32)log('Note: a 32-byte session key is outside the 16/24-byte lengths described in the current pymt5 protocol reference; verify server-specific compatibility before relying on it.','warn');
+  return {version,command,code,bodyLength:body.length,keyLength:sessionKeyLength};
+ }
+ throw Error(`Unexpected session key length ${sessionKeyLength} bytes; protocol reference documents 16 or 24 bytes (32 accepted here only for diagnostic visibility).`);
+}
+async function run(){if(running)return;running=true;$('start').disabled=true;$('log').replaceChildren();lines=[];$('header').textContent='—';$('decrypted').textContent='—';$('keylen').textContent='—';status('準備中…');log('Bootstrap v3 started. No account credentials will be sent.');
+ if(!isSecureContext||!crypto?.subtle){log('HTTPS Secure Context and Web Crypto are required.','bad');status('瀏覽器環境不符合要求','bad');finish();return;}
+ let ws,timer,done=false;
+ const finish=()=>{if(timer)clearTimeout(timer);running=false;$('start').disabled=false;};
+ try{
+  const key=initialKey();log(`Initial bootstrap AES key loaded (${key.length} bytes).`);
+  ws=new WebSocket(ENDPOINT);ws.binaryType='arraybuffer';status('正在連線…');
+  timer=setTimeout(()=>{if(!done){done=true;log('Timed out waiting for bootstrap response (15 seconds).','bad');status('等待逾時','bad');try{ws.close(1000,'diagnostic timeout');}catch{}finish();}},15000);
+  ws.onopen=async()=>{log('WebSocket open. Preparing encrypted cmd=0 request.','ok');try{const packet=await makePacket(0,new Uint8Array(64),key);if(ws.readyState!==WebSocket.OPEN)throw Error('Socket closed before send');ws.send(packet);log(`Sent encrypted cmd=0 binary request (${packet.length} bytes).`);status('已送出 Bootstrap，等待回應…');}catch(e){done=true;log(`Unable to send bootstrap: ${e.message}`,'bad');status('傳送失敗','bad');try{ws.close(1000,'send failed');}catch{}finish();}};
+  ws.onmessage=async ev=>{if(done)return;try{let frame;if(ev.data instanceof ArrayBuffer)frame=new Uint8Array(ev.data);else if(ev.data instanceof Blob)frame=new Uint8Array(await ev.data.arrayBuffer());else throw Error(`Unexpected WebSocket message type: ${typeof ev.data}`);log(`Received binary frame (${frame.length} bytes).`);const result=await parseFrame(frame,key);done=true;status(`Bootstrap response decrypted and structurally validated (outer version ${result.version}).`,'ok');log('Bootstrap validation passed. No token or key values were displayed.','ok');try{ws.close(1000,'diagnostic complete');}catch{}finish();}catch(e){done=true;log(`Validation result: ${e.message}`,'bad');status('收到回應，但尚未完成 Bootstrap 驗證','bad');try{ws.close(1000,'diagnostic complete');}catch{}finish();}};
+  ws.onerror=()=>{log('WebSocket error event. Browser does not expose detailed handshake errors.','bad');if(!done)status('WebSocket error','bad');};
+  ws.onclose=e=>{log(`WebSocket closed: code=${e.code}, clean=${e.wasClean}, reason=${e.reason||'(none)'}.`,e.code===1000?'ok':'warn');if(!done){done=true;status(`連線提早關閉（${e.code}）`,'bad');finish();}};
+ }catch(e){log(`Setup failed: ${e.message}`,'bad');status('診斷啟動失敗','bad');finish();}
+}
+$('start').addEventListener('click',run);
+$('copy').addEventListener('click',async()=>{const report=['FTMO MT5 Bootstrap Diagnostic v3',`Page origin: ${location.origin}`,`Endpoint: ${ENDPOINT}`,`Generated UTC: ${utc()}`,...lines].join('\n');try{await navigator.clipboard.writeText(report);log('Sanitized diagnostic log copied.','ok');}catch{log('Clipboard unavailable; select and copy the log manually.','warn');}});
+log('Bootstrap diagnostic v3 page loaded.');
 })();
 </script>
 </body>

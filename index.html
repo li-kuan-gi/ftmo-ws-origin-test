@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="description" content="FTMO MT5 browser-based historical candle downloader. Select symbol, timeframe and UTC date range; export OHLC CSV.">
-<title>FTMO MT5 Historical Data Downloader v6</title>
+<title>FTMO MT5 Historical Data Downloader v7</title>
 <style>
 :root{color-scheme:dark;--bg:#0a1020;--panel:#121b2d;--panel2:#0b1425;--muted:#9aa9c0;--text:#edf3ff;--line:#2a3a56;--accent:#7eafff;--good:#43d49a;--warn:#ffd16c;--bad:#ff8088;--input:#081222}
 *{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 20% 0%,#172744 0%,transparent 42%),linear-gradient(155deg,#0e172b,var(--bg) 60%);color:var(--text);font:15px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif}
@@ -17,7 +17,7 @@ main{max-width:1050px;margin:30px auto;padding:0 18px 56px}.top{display:flex;ali
 <main>
   <header class="top">
     <div>
-      <h1>FTMO MT5 歷史 K 線下載器</h1>
+      <h1>FTMO MT5 歷史 K 線下載器 v7</h1>
       <p class="subtitle">選擇商品、K 線週期與 UTC 時間區間，直接由瀏覽器匯出 OHLC CSV。</p>
     </div>
     <div class="pill"><span class="dot"></span> Browser-only · No local server</div>
@@ -166,21 +166,24 @@ let running = false;
 
 const $ = (id) => document.getElementById(id);
 
+// UI values are expressed in minutes. The MT5 cmd=11 wire field is NOT
+// always minutes: it uses MQL5 ENUM_TIMEFRAMES values. The minute-based
+// get_rates() wrapper in pymt5 converts through PERIOD_MAP before sending.
 const TIMEFRAMES = new Map([
-  [1, { label: 'M1', seconds: 60 }],
-  [5, { label: 'M5', seconds: 300 }],
-  [15, { label: 'M15', seconds: 900 }],
-  [30, { label: 'M30', seconds: 1800 }],
-  [60, { label: 'H1', seconds: 3600 }],
-  [120, { label: 'H2', seconds: 7200 }],
-  [180, { label: 'H3', seconds: 10800 }],
-  [240, { label: 'H4', seconds: 14400 }],
-  [360, { label: 'H6', seconds: 21600 }],
-  [480, { label: 'H8', seconds: 28800 }],
-  [720, { label: 'H12', seconds: 43200 }],
-  [1440, { label: 'D1', seconds: 86400 }],
-  [10080, { label: 'W1', seconds: 604800 }],
-  [43200, { label: 'MN1', seconds: null, months: 1 }]
+  [1,     { label: 'M1',  minutes: 1,     wirePeriod: 1,     seconds: 60 }],
+  [5,     { label: 'M5',  minutes: 5,     wirePeriod: 5,     seconds: 300 }],
+  [15,    { label: 'M15', minutes: 15,    wirePeriod: 15,    seconds: 900 }],
+  [30,    { label: 'M30', minutes: 30,    wirePeriod: 30,    seconds: 1800 }],
+  [60,    { label: 'H1',  minutes: 60,    wirePeriod: 16385, seconds: 3600 }],
+  [120,   { label: 'H2',  minutes: 120,   wirePeriod: 16386, seconds: 7200 }],
+  [180,   { label: 'H3',  minutes: 180,   wirePeriod: 16387, seconds: 10800 }],
+  [240,   { label: 'H4',  minutes: 240,   wirePeriod: 16388, seconds: 14400 }],
+  [360,   { label: 'H6',  minutes: 360,   wirePeriod: 16390, seconds: 21600 }],
+  [480,   { label: 'H8',  minutes: 480,   wirePeriod: 16392, seconds: 28800 }],
+  [720,   { label: 'H12', minutes: 720,   wirePeriod: 16396, seconds: 43200 }],
+  [1440,  { label: 'D1',  minutes: 1440,  wirePeriod: 16408, seconds: 86400 }],
+  [10080, { label: 'W1',  minutes: 10080, wirePeriod: 32769, seconds: 604800 }],
+  [43200, { label: 'MN1', minutes: 43200, wirePeriod: 49153, seconds: null, months: 1 }]
 ]);
 
 function log(message, level = '') {
@@ -433,9 +436,10 @@ function estimateBars(startTs, endTs, timeframe) {
   return Math.ceil((endTs - startTs) / timeframe.seconds);
 }
 
-function buildRatesPayload(symbol, timeframeMinutes, startTs, endTs) {
-  // pymt5 get_rates() specifies the wire period argument in minutes.
-  return concatBytes(fixedUtf16(symbol, 64), u16(timeframeMinutes), i32(startTs), i32(endTs));
+function buildRatesPayload(symbol, wirePeriod, startTs, endTs) {
+  // cmd=11 expects the MQL5 ENUM_TIMEFRAMES wire value. The public
+  // pymt5 get_rates() helper accepts minutes but maps them via PERIOD_MAP.
+  return concatBytes(fixedUtf16(symbol, 64), u16(wirePeriod), i32(startTs), i32(endTs));
 }
 
 function parseRateBars(body) {
@@ -570,7 +574,7 @@ async function run() {
   setStatus('連線、登入與歷史資料下載進行中…');
 
   try {
-    log(`Request: symbol=${symbol}; timeframe=${timeframe.label} (${timeframe.minutes} minutes); range=${isoUtc(range.startTs)} to ${isoUtc(range.endTs)} UTC.`);
+    log(`Request: symbol=${symbol}; timeframe=${timeframe.label} (${timeframe.minutes} minutes; cmd=11 wire_period=${timeframe.wirePeriod}); range=${isoUtc(range.startTs)} to ${isoUtc(range.endTs)} UTC.`);
     log(`Estimated bars: ${estimateBars(range.startTs, range.endTs, timeframe).toLocaleString()}.`);
     await connectWebSocket();
     await doBootstrap();
@@ -585,7 +589,7 @@ async function run() {
     log('Read-only login accepted. No order/trade command was sent.', 'ok');
     await new Promise((resolve) => setTimeout(resolve, 180));
 
-    ratesPayload = buildRatesPayload(symbol, timeframe.minutes, range.startTs, range.endTs);
+    ratesPayload = buildRatesPayload(symbol, timeframe.wirePeriod, range.startTs, range.endTs);
     log(`Requesting ${symbol} ${timeframe.label} historical rates for selected UTC range.`);
     const ratesResult = await request(CMD_GET_RATES, ratesPayload, `cmd=11 Get Rates (${symbol} ${timeframe.label})`, 30000);
     ratesPayload.fill(0); ratesPayload = null;

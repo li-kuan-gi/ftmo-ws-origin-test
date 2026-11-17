@@ -3,19 +3,28 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>FTMO EURUSD M15 24H CSV Export v5</title>
+<meta name="description" content="FTMO MT5 browser-based historical candle downloader. Select symbol, timeframe and UTC date range; export OHLC CSV.">
+<title>FTMO MT5 Historical Data Downloader v6</title>
 <style>
-:root{color-scheme:dark;--bg:#0b1020;--panel:#121a2b;--muted:#9eabc1;--text:#edf3ff;--line:#2a3852;--accent:#75a7ff;--good:#43cf91;--warn:#ffd06a;--bad:#ff7b85}
-*{box-sizing:border-box}body{margin:0;background:linear-gradient(160deg,#101a31 0%,var(--bg) 54%);color:var(--text);font:15px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif}
-main{max-width:900px;margin:36px auto;padding:0 18px 50px}.card{background:rgba(18,26,43,.96);border:1px solid var(--line);border-radius:16px;padding:22px;margin:16px 0;box-shadow:0 14px 38px #0003}
-h1{font-size:25px;margin:0 0 5px}.sub{color:var(--muted);margin:0 0 20px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.field{display:flex;flex-direction:column;gap:6px}.field.wide{grid-column:1/-1}label{font-size:13px;color:#c7d3e7}input{width:100%;background:#0a1221;color:var(--text);border:1px solid #33435f;border-radius:9px;padding:12px;font:inherit;outline:none}input:focus{border-color:var(--accent);box-shadow:0 0 0 3px #75a7ff22}.hint{font-size:12px;color:var(--muted)}button{border:0;border-radius:10px;padding:12px 17px;font:600 15px system-ui;cursor:pointer;background:var(--accent);color:#071325}button:disabled{opacity:.5;cursor:not-allowed}.secondary{background:#26354f;color:var(--text)}.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}.status{border:1px solid var(--line);background:#0a1221;padding:12px 14px;border-radius:10px;min-height:50px}.ok{color:var(--good)}.warn{color:var(--warn)}.err{color:var(--bad)}#log{height:260px;overflow:auto;white-space:pre-wrap;overflow-wrap:anywhere;background:#070d18;border:1px solid var(--line);border-radius:10px;padding:12px;font:12px/1.55 ui-monospace,SFMono-Regular,Consolas,monospace;color:#c8d5e9}.meta{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.metric{background:#0a1221;border:1px solid var(--line);border-radius:10px;padding:12px}.metric strong{display:block;font-size:18px}.metric span{font-size:12px;color:var(--muted)}table{width:100%;border-collapse:collapse;font:12px ui-monospace,monospace}th,td{text-align:right;padding:8px;border-bottom:1px solid var(--line);white-space:nowrap}th:first-child,td:first-child{text-align:left}.tablewrap{overflow:auto}.note{font-size:13px;color:var(--muted)}code{color:#c5d9ff}a{color:#a9c7ff}@media(max-width:620px){.grid{grid-template-columns:1fr}.meta{grid-template-columns:1fr 1fr}main{margin-top:18px}.card{padding:17px}}
+:root{color-scheme:dark;--bg:#0a1020;--panel:#121b2d;--panel2:#0b1425;--muted:#9aa9c0;--text:#edf3ff;--line:#2a3a56;--accent:#7eafff;--good:#43d49a;--warn:#ffd16c;--bad:#ff8088;--input:#081222}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 20% 0%,#172744 0%,transparent 42%),linear-gradient(155deg,#0e172b,var(--bg) 60%);color:var(--text);font:15px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:1050px;margin:30px auto;padding:0 18px 56px}.top{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:18px}h1{font-size:26px;letter-spacing:.1px;margin:0 0 5px}.subtitle{color:var(--muted);margin:0}.pill{display:inline-flex;align-items:center;gap:7px;border:1px solid #315b4a;background:#10291f;color:#8ce5bb;padding:6px 10px;border-radius:999px;font-size:12px;white-space:nowrap}.dot{width:7px;height:7px;background:var(--good);border-radius:50%}
+.card{background:rgba(18,27,45,.96);border:1px solid var(--line);border-radius:15px;padding:21px;margin:15px 0;box-shadow:0 16px 40px #0003}.section-title{font-size:16px;margin:0 0 14px}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.grid.three{grid-template-columns:repeat(3,minmax(0,1fr))}.field{display:flex;flex-direction:column;gap:6px;min-width:0}.field.wide{grid-column:1/-1}label{font-size:13px;color:#cbd7e9;font-weight:600}input,select{width:100%;background:var(--input);color:var(--text);border:1px solid #354967;border-radius:9px;padding:11px 12px;font:inherit;min-height:44px;outline:none}input:focus,select:focus{border-color:var(--accent);box-shadow:0 0 0 3px #7eafff20}.hint{font-size:12px;color:var(--muted)}.hidden{display:none!important}.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:17px}button{border:0;border-radius:10px;padding:12px 18px;font:650 14px system-ui;cursor:pointer;background:var(--accent);color:#071426}button:disabled{opacity:.48;cursor:not-allowed}.secondary{background:#263650;color:var(--text)}.status{border:1px solid var(--line);background:#091324;padding:12px 14px;border-radius:10px;min-height:48px}.ok{color:var(--good)}.warn{color:var(--warn)}.err{color:var(--bad)}.meta{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:12px}.metric{background:#091324;border:1px solid var(--line);border-radius:10px;padding:12px;min-width:0}.metric strong{display:block;font-size:19px;overflow-wrap:anywhere}.metric span{font-size:12px;color:var(--muted)}#log{height:245px;overflow:auto;white-space:pre-wrap;overflow-wrap:anywhere;background:#060c17;border:1px solid var(--line);border-radius:10px;padding:12px;font:12px/1.55 ui-monospace,SFMono-Regular,Consolas,monospace;color:#c8d5e9}.tablewrap{overflow:auto}table{width:100%;border-collapse:collapse;font:12px ui-monospace,monospace}th,td{text-align:right;padding:9px 10px;border-bottom:1px solid var(--line);white-space:nowrap}th:first-child,td:first-child{text-align:left}th{color:#b9c9e1;font-weight:600;position:sticky;top:0;background:#121b2d}.note{font-size:13px;color:var(--muted);margin:9px 0 0}code{color:#c5d9ff}.split{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}.tiny{font-size:11px;color:var(--muted)}.summaryline{color:var(--muted);font-size:13px;margin:0 0 12px}.rule{height:1px;background:var(--line);margin:16px 0}.kbd{border:1px solid #3b4a63;border-radius:5px;padding:1px 5px;color:#c9d8ee;font:11px ui-monospace,monospace}
+@media(max-width:700px){main{margin-top:18px}.card{padding:16px}.grid,.grid.three{grid-template-columns:1fr}.meta{grid-template-columns:repeat(2,minmax(0,1fr))}.top{align-items:flex-start}h1{font-size:22px}}
 </style>
 </head>
 <body>
 <main>
+  <header class="top">
+    <div>
+      <h1>FTMO MT5 歷史 K 線下載器</h1>
+      <p class="subtitle">選擇商品、K 線週期與 UTC 時間區間，直接由瀏覽器匯出 OHLC CSV。</p>
+    </div>
+    <div class="pill"><span class="dot"></span> Browser-only · No local server</div>
+  </header>
+
   <section class="card">
-    <h1>FTMO EURUSD M15 歷史資料下載</h1>
-    <p class="sub">最近 24 小時 · M15 · UTC · 直接由瀏覽器連線，無需本機 Python Server 或 MT5 Desktop</p>
+    <h2 class="section-title">1. FTMO 唯讀帳戶</h2>
     <div class="grid">
       <div class="field">
         <label for="login">MT5 Login ID</label>
@@ -28,42 +37,112 @@ h1{font-size:25px;margin:0 0 5px}.sub{color:var(--muted);margin:0 0 20px}.grid{d
       <div class="field wide">
         <label for="otp">OTP（只有帳戶要求時才填）</label>
         <input id="otp" type="password" autocomplete="off" placeholder="選填；不需要時留空" spellcheck="false">
-        <span class="hint">帳密只在本次頁面操作時使用，不會寫入 GitHub、localStorage 或診斷日誌。</span>
+        <span class="hint">帳密只在本次頁面操作時使用；不會寫入 GitHub、localStorage 或診斷日誌。此頁只發送讀取行情及登出命令，不會下單。</span>
       </div>
     </div>
+  </section>
+
+  <section class="card">
+    <h2 class="section-title">2. 行情查詢設定</h2>
+    <div class="grid three">
+      <div class="field">
+        <label for="symbol">交易商品 / Currency Pair</label>
+        <select id="symbol">
+          <optgroup label="主要貨幣對">
+            <option>EURUSD</option><option>GBPUSD</option><option>USDJPY</option><option>USDCHF</option><option>USDCAD</option><option>AUDUSD</option><option>NZDUSD</option>
+          </optgroup>
+          <optgroup label="交叉貨幣對">
+            <option>EURGBP</option><option>EURJPY</option><option>EURCHF</option><option>EURCAD</option><option>EURAUD</option><option>EURNZD</option><option>GBPJPY</option><option>GBPCHF</option><option>GBPCAD</option><option>GBPAUD</option><option>GBPNZD</option><option>AUDJPY</option><option>AUDCAD</option><option>AUDCHF</option><option>AUDNZD</option><option>CADJPY</option><option>CADCHF</option><option>CHFJPY</option><option>NZDJPY</option><option>NZDCAD</option><option>NZDCHF</option>
+          </optgroup>
+          <option value="__custom__">自訂商品名稱…</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="timeframe">K 線週期 / Timeframe</label>
+        <select id="timeframe">
+          <option value="1" data-label="M1">M1 — 1 分鐘</option>
+          <option value="5" data-label="M5">M5 — 5 分鐘</option>
+          <option value="15" data-label="M15" selected>M15 — 15 分鐘</option>
+          <option value="30" data-label="M30">M30 — 30 分鐘</option>
+          <option value="60" data-label="H1">H1 — 1 小時</option>
+          <option value="120" data-label="H2">H2 — 2 小時</option>
+          <option value="180" data-label="H3">H3 — 3 小時</option>
+          <option value="240" data-label="H4">H4 — 4 小時</option>
+          <option value="360" data-label="H6">H6 — 6 小時</option>
+          <option value="480" data-label="H8">H8 — 8 小時</option>
+          <option value="720" data-label="H12">H12 — 12 小時</option>
+          <option value="1440" data-label="D1">D1 — 1 天</option>
+          <option value="10080" data-label="W1">W1 — 1 週</option>
+          <option value="43200" data-label="MN1">MN1 — 1 個月</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="rangePreset">時間區間 / Date Range</label>
+        <select id="rangePreset">
+          <option value="24h" selected>最近 24 小時</option>
+          <option value="7d">最近 7 天</option>
+          <option value="30d">最近 30 天</option>
+          <option value="90d">最近 90 天</option>
+          <option value="custom">自訂 UTC 起訖時間</option>
+        </select>
+      </div>
+      <div class="field hidden" id="customSymbolWrap">
+        <label for="customSymbol">自訂商品名稱</label>
+        <input id="customSymbol" maxlength="32" autocomplete="off" placeholder="例如 EURUSD.a 或 XAUUSD">
+        <span class="hint">名稱須與 FTMO Market Watch 中的商品名稱完全一致。</span>
+      </div>
+    </div>
+    <div class="rule"></div>
+    <div class="grid">
+      <div class="field">
+        <label for="startUtc">開始時間（UTC）</label>
+        <input id="startUtc" type="datetime-local" step="60">
+      </div>
+      <div class="field">
+        <label for="endUtc">結束時間（UTC）</label>
+        <input id="endUtc" type="datetime-local" step="60">
+      </div>
+    </div>
+    <p class="note">時間欄位一律以 UTC 解讀，不使用裝置的本地時區。請將欄位中的數字視為 UTC 時間；CSV 會使用 ISO 8601 的 <code>Z</code> 標記 UTC。時間範圍上限為預估 100,000 根 K 線，以避免瀏覽器記憶體及單次請求過大。</p>
     <div class="actions">
-      <button id="run">登入並下載 EURUSD M15 CSV</button>
-      <button id="clear" class="secondary" type="button">清除紀錄</button>
+      <button id="run">登入並下載 CSV</button>
+      <button id="clear" class="secondary" type="button">清除診斷紀錄</button>
     </div>
   </section>
 
   <section class="card">
-    <h2 style="font-size:17px;margin:0 0 12px">執行狀態</h2>
+    <h2 class="section-title">3. 執行結果</h2>
     <div id="status" class="status">尚未執行。</div>
-    <div class="meta" style="margin-top:12px">
-      <div class="metric"><strong id="metric-bars">—</strong><span>M15 K 線數量</span></div>
+    <div class="meta">
+      <div class="metric"><strong id="metric-symbol">—</strong><span>商品</span></div>
+      <div class="metric"><strong id="metric-timeframe">—</strong><span>K 線週期</span></div>
+      <div class="metric"><strong id="metric-bars">—</strong><span>K 線數量</span></div>
       <div class="metric"><strong id="metric-format">—</strong><span>資料格式</span></div>
-      <div class="metric"><strong id="metric-range">24h</strong><span>查詢範圍（UTC）</span></div>
     </div>
+    <p id="rangeSummary" class="summaryline" style="margin-top:12px">尚未查詢。所有時間均為 UTC。</p>
   </section>
 
   <section class="card">
-    <h2 style="font-size:17px;margin:0 0 12px">最新 5 根 K 線預覽</h2>
+    <div class="split">
+      <h2 class="section-title" style="margin:0 0 12px">最新 K 線預覽</h2>
+      <span class="tiny">最多顯示最新 10 根 · UTC</span>
+    </div>
     <div class="tablewrap">
-      <table><thead><tr><th>Bar open time (UTC)</th><th>Open</th><th>High</th><th>Low</th><th>Close</th></tr></thead><tbody id="preview"><tr><td colspan="5" style="text-align:left;color:#9eabc1">尚無資料</td></tr></tbody></table>
+      <table><thead><tr><th>Bar Open Time (UTC)</th><th>Open</th><th>High</th><th>Low</th><th>Close</th><th>Volume</th><th>Status</th></tr></thead>
+      <tbody id="preview"><tr><td colspan="7" style="text-align:left;color:#9aa9c0">尚無資料</td></tr></tbody></table>
     </div>
   </section>
 
   <section class="card">
-    <h2 style="font-size:17px;margin:0 0 12px">診斷紀錄</h2>
+    <h2 class="section-title">診斷紀錄（UTC）</h2>
     <div id="log" aria-live="polite">頁面載入完成。所有日誌時間均為 UTC。</div>
-    <p class="note">安全提醒：不要分享帳密、Session Token、AES Key 或完整網路封包。若失敗，僅分享本頁已遮蔽敏感資料的文字日誌。</p>
+    <p class="note">若測試失敗，可分享這裡的日誌。不要分享密碼、OTP、Session Token、AES Key 或原始加密封包。</p>
   </section>
 
   <section class="card">
-    <h2 style="font-size:17px;margin:0 0 8px">時間與資料定義</h2>
-    <p class="note">CSV 時間欄位使用 <code>bar_open_time_utc_iso8601</code>，值以 <code>Z</code> 結尾（例如 <code>2026-11-17T06:00:00Z</code>），代表 UTC。另提供 Unix 秒數欄位及每列 <code>timestamp_timezone=UTC</code>。每根 M15 K 線的時間代表該根 K 線的開盤時間。</p>
-    <p class="note">資料為 FTMO MT5 Web Terminal 回傳的歷史報價，不代表交易所成交量；<code>tick_volume</code> 是 Tick 數量。休市期間不一定有 96 根 K 線。</p>
+    <h2 class="section-title">CSV 欄位與時間定義</h2>
+    <p class="note">CSV 包含商品、週期、K 線開盤時間及收盤時間（UTC ISO 8601，結尾 Z）、Unix 秒數、OHLC、Tick Volume、Spread、Real Volume（伺服器有提供時）及 is_closed。時間戳代表每根 K 線的開盤時間。</p>
+    <p class="note">Tick Volume 是該週期的報價變動／Tick 數量，不等同於集中交易所的實際成交量。非交易時段不一定會有連續 K 線。每次查詢結束後會送出登出命令。</p>
   </section>
 </main>
 
@@ -71,44 +150,51 @@ h1{font-size:25px;margin:0 0 5px}.sub{color:var(--muted);margin:0 0 20px}.grid{d
 'use strict';
 
 const ENDPOINT = 'wss://mt5demowebterminal.ftmo.com/terminal';
-const SYMBOL = 'EURUSD';
-const PERIOD_M15 = 15;
-const PERIOD_SECONDS = 15 * 60;
-const LOOKBACK_SECONDS = 24 * 60 * 60;
 const CMD_LOGOUT = 2;
 const CMD_GET_RATES = 11;
 const CMD_LOGIN = 28;
 const CMD_LOGIN_STATUS_PUSH = 15;
-
-// This is the same obfuscated initial bootstrap key used by the previously
-// validated v3/v4 diagnostic. Do not print the decoded key or session material.
+const MAX_ESTIMATED_BARS = 100000;
 const OBFUSCATED_KEY = '13ef13b2b76dd8:5795gdcfb2fdc1ge85bf768f54773d22fff996e3ge75g5:75';
 
 let socket = null;
 let activeAesKey = null;
 let pendingRequest = null;
 let messageChain = Promise.resolve();
-let pushCount = 0;
 let loggedIn = false;
 let running = false;
 
 const $ = (id) => document.getElementById(id);
 
+const TIMEFRAMES = new Map([
+  [1, { label: 'M1', seconds: 60 }],
+  [5, { label: 'M5', seconds: 300 }],
+  [15, { label: 'M15', seconds: 900 }],
+  [30, { label: 'M30', seconds: 1800 }],
+  [60, { label: 'H1', seconds: 3600 }],
+  [120, { label: 'H2', seconds: 7200 }],
+  [180, { label: 'H3', seconds: 10800 }],
+  [240, { label: 'H4', seconds: 14400 }],
+  [360, { label: 'H6', seconds: 21600 }],
+  [480, { label: 'H8', seconds: 28800 }],
+  [720, { label: 'H12', seconds: 43200 }],
+  [1440, { label: 'D1', seconds: 86400 }],
+  [10080, { label: 'W1', seconds: 604800 }],
+  [43200, { label: 'MN1', seconds: null, months: 1 }]
+]);
+
 function log(message, level = '') {
-  const stamp = new Date().toISOString();
-  const line = `[${stamp}] ${message}`;
-  const box = $('log');
+  const line = `[${new Date().toISOString()}] ${message}`;
   const span = document.createElement('span');
   span.textContent = line + '\n';
   if (level) span.className = level;
-  box.appendChild(span);
-  box.scrollTop = box.scrollHeight;
+  $('log').appendChild(span);
+  $('log').scrollTop = $('log').scrollHeight;
 }
 
 function setStatus(message, level = '') {
-  const el = $('status');
-  el.textContent = message;
-  el.className = 'status ' + level;
+  $('status').textContent = message;
+  $('status').className = 'status ' + level;
 }
 
 function hexToBytes(hex) {
@@ -119,7 +205,6 @@ function hexToBytes(hex) {
 }
 
 function decodeInitialKey() {
-  // Exact decoder from the previously validated v3/v4 diagnostics.
   let hex = '';
   for (const ch of OBFUSCATED_KEY) {
     const cp = ch.codePointAt(0);
@@ -150,9 +235,7 @@ function fixedUtf16(text, byteLength) {
   const view = new DataView(out.buffer);
   const maxUnits = Math.floor(byteLength / 2);
   let units = 0;
-  for (let i = 0; i < text.length && units < maxUnits; i++, units++) {
-    view.setUint16(units * 2, text.charCodeAt(i), true);
-  }
+  for (let i = 0; i < text.length && units < maxUnits; i++, units++) view.setUint16(units * 2, text.charCodeAt(i), true);
   return out;
 }
 
@@ -163,11 +246,7 @@ async function importAesKey(raw) {
 
 async function encryptFrame(command, payload) {
   const inner = concatBytes(randomBytes(2), u16(command), payload);
-  const encrypted = new Uint8Array(await crypto.subtle.encrypt(
-    { name: 'AES-CBC', iv: new Uint8Array(16) }, activeAesKey, inner
-  ));
-  // FTMO accepted client outer version 1 in the verified Bootstrap v3/v4 runs;
-  // server replies were observed with outer version 0.
+  const encrypted = new Uint8Array(await crypto.subtle.encrypt({ name: 'AES-CBC', iv: new Uint8Array(16) }, activeAesKey, inner));
   return concatBytes(u32(encrypted.length), u32(1), encrypted);
 }
 
@@ -178,15 +257,10 @@ async function decryptFrame(frame) {
   const declared = view.getUint32(0, true);
   const outerVersion = view.getUint32(4, true);
   if (declared !== bytes.length - 8) throw new Error(`Outer length mismatch: declared=${declared}, actual=${bytes.length - 8}`);
-  const ciphertext = bytes.slice(8);
-  const plain = new Uint8Array(await crypto.subtle.decrypt(
-    { name: 'AES-CBC', iv: new Uint8Array(16) }, activeAesKey, ciphertext
-  ));
+  const plain = new Uint8Array(await crypto.subtle.decrypt({ name: 'AES-CBC', iv: new Uint8Array(16) }, activeAesKey, bytes.slice(8)));
   if (plain.length < 5) throw new Error('Decrypted payload too short');
   const pview = new DataView(plain.buffer, plain.byteOffset, plain.byteLength);
-  const command = pview.getUint16(2, true);
-  const responseCode = pview.getUint8(4);
-  return { outerVersion, command, responseCode, body: plain.slice(5), plaintextLength: plain.length };
+  return { outerVersion, command: pview.getUint16(2, true), responseCode: pview.getUint8(4), body: plain.slice(5), plaintextLength: plain.length };
 }
 
 function connectWebSocket() {
@@ -195,26 +269,14 @@ function connectWebSocket() {
     socket = new WebSocket(ENDPOINT);
     socket.binaryType = 'arraybuffer';
     let settled = false;
-
-    socket.onopen = () => {
-      if (settled) return;
-      settled = true;
-      log('WebSocket handshake completed.');
-      resolve();
-    };
+    socket.onopen = () => { if (!settled) { settled = true; log('WebSocket handshake completed.'); resolve(); } };
     socket.onerror = () => {
       const err = new Error('WebSocket transport error. Check endpoint, network, and browser console.');
-      if (!settled) { settled = true; reject(err); }
-      else log(err.message, 'err');
+      if (!settled) { settled = true; reject(err); } else log(err.message, 'err');
     };
     socket.onclose = (event) => {
-      log(`WebSocket closed: code=${event.code}, clean=${event.wasClean}, reason=${event.reason || '(none)'}`,
-          event.wasClean ? '' : 'warn');
-      if (pendingRequest) {
-        clearTimeout(pendingRequest.timer);
-        pendingRequest.reject(new Error(`WebSocket closed while waiting for command ${pendingRequest.command}`));
-        pendingRequest = null;
-      }
+      log(`WebSocket closed: code=${event.code}, clean=${event.wasClean}, reason=${event.reason || '(none)'}`, event.wasClean ? '' : 'warn');
+      if (pendingRequest) { clearTimeout(pendingRequest.timer); pendingRequest.reject(new Error(`WebSocket closed while waiting for command ${pendingRequest.command}`)); pendingRequest = null; }
       if (!settled) { settled = true; reject(new Error(`WebSocket closed before open (code ${event.code})`)); }
     };
     socket.onmessage = (event) => {
@@ -222,53 +284,39 @@ function connectWebSocket() {
         let frameBytes;
         if (event.data instanceof ArrayBuffer) frameBytes = new Uint8Array(event.data);
         else if (event.data instanceof Blob) frameBytes = new Uint8Array(await event.data.arrayBuffer());
-        else {
-          log('Received non-binary WebSocket message; ignored.', 'warn');
-          return;
-        }
+        else { log('Received non-binary WebSocket message; ignored.', 'warn'); return; }
         const result = await decryptFrame(frameBytes);
         if (result.command === CMD_LOGIN_STATUS_PUSH) {
-          pushCount++;
-          log(`Login/session status push observed: response_code=${result.responseCode}, body_length=${result.body.length} bytes. Payload intentionally not displayed.`);
+          log(`Login/session status push observed: response_code=${result.responseCode}, body_length=${result.body.length} bytes. Payload not displayed.`);
+          result.body.fill(0);
           return;
         }
         if (pendingRequest && result.command === pendingRequest.command) {
-          const p = pendingRequest;
-          pendingRequest = null;
-          clearTimeout(p.timer);
-          p.resolve(result);
-          return;
+          const p = pendingRequest; pendingRequest = null; clearTimeout(p.timer); p.resolve(result); return;
         }
         log(`Unmatched server message: command=${result.command}, response_code=${result.responseCode}, body_length=${result.body.length} bytes. Payload not displayed.`, 'warn');
+        result.body.fill(0);
       }).catch((err) => {
         log(`Frame processing error: ${err.message}`, 'err');
-        if (pendingRequest) {
-          const p = pendingRequest;
-          pendingRequest = null;
-          clearTimeout(p.timer);
-          p.reject(err);
-        }
+        if (pendingRequest) { const p = pendingRequest; pendingRequest = null; clearTimeout(p.timer); p.reject(err); }
       });
     };
   });
 }
 
-async function request(command, payload, label, timeoutMs = 12000) {
+async function request(command, payload, label, timeoutMs = 20000) {
   if (!socket || socket.readyState !== WebSocket.OPEN) throw new Error('WebSocket is not open');
   if (pendingRequest) throw new Error('Another MT5 command is still pending');
   const frame = await encryptFrame(command, payload);
-  const resultPromise = new Promise((resolve, reject) => {
+  const responsePromise = new Promise((resolve, reject) => {
     const timer = setTimeout(() => {
-      if (pendingRequest && pendingRequest.command === command) {
-        pendingRequest = null;
-        reject(new Error(`Timeout waiting for ${label} (command ${command})`));
-      }
+      if (pendingRequest && pendingRequest.command === command) { pendingRequest = null; reject(new Error(`Timeout waiting for ${label} (command ${command})`)); }
     }, timeoutMs);
     pendingRequest = { command, resolve, reject, timer };
   });
   socket.send(frame);
   log(`Sent ${label}: encrypted frame ${frame.length} bytes.`);
-  const result = await resultPromise;
+  const result = await responsePromise;
   log(`${label} response: command=${result.command}, outer_version=${result.outerVersion}, response_code=${result.responseCode}, body_length=${result.body.length} bytes.`);
   return result;
 }
@@ -285,25 +333,18 @@ async function doBootstrap() {
   const sessionKeyRaw = result.body.slice(66);
   if (bootstrapToken.length !== 64) throw new Error('Bootstrap token length mismatch');
   activeAesKey = await importAesKey(sessionKeyRaw);
-  bootstrapToken.fill(0);
-  sessionKeyRaw.fill(0);
-  result.body.fill(0);
-  log('Bootstrap verified: response_code=0; Session AES key imported; secret values cleared from working buffers.');
+  bootstrapToken.fill(0); sessionKeyRaw.fill(0); result.body.fill(0);
+  log('Bootstrap verified; Session AES Key imported. Secret values not displayed.');
 }
 
 function buildLoginPayload(loginId, password, otp) {
   const clientId = randomBytes(16);
-  let passwordPrefix = '';
   let passwordBlob = new Uint8Array(160);
+  let passwordPrefix = '';
   if (password.length === 320) {
-    if (!/^[0-9a-fA-F]{320}$/.test(password)) {
-      throw new Error('Password is 320 characters but is not a valid 320-character hexadecimal blob.');
-    }
+    if (!/^[0-9a-fA-F]{320}$/.test(password)) throw new Error('Password is 320 characters but is not a valid hexadecimal blob.');
     passwordBlob = hexToBytes(password);
-  } else {
-    // Match the validated v4 behavior: first 32 UTF-16 code units in prefix field.
-    passwordPrefix = password.slice(0, 32);
-  }
+  } else passwordPrefix = password.slice(0, 32);
   const passwordField = fixedUtf16(passwordPrefix, 64);
   const otpField = fixedUtf16(otp, 128);
   const campaign = fixedUtf16('', 64);
@@ -312,70 +353,97 @@ function buildLoginPayload(loginId, password, otp) {
   const host = 'mt5demowebterminal.ftmo.com';
   const terminalHost = fixedUtf16(host, 256);
   const payload = concatBytes(
-    u32(0),
-    passwordField,
-    otpField,
-    clientId,
-    campaign,
-    source,
-    u64(0),
-    affiliate,
-    u32(host.length),
-    terminalHost,
-    u64(loginId),
-    passwordBlob,
-    u64(0),
-    u64(0)
+    u32(0), passwordField, otpField, clientId, campaign, source, u64(0), affiliate,
+    u32(host.length), terminalHost, u64(loginId), passwordBlob, u64(0), u64(0)
   );
-  clientId.fill(0);
-  passwordField.fill(0);
-  otpField.fill(0);
-  passwordBlob.fill(0);
+  clientId.fill(0); passwordField.fill(0); otpField.fill(0); passwordBlob.fill(0);
   return payload;
 }
 
 function validateLoginResponse(result) {
   if (result.responseCode !== 0) throw new Error(`FTMO login rejected: response_code=${result.responseCode}`);
-  // A zero login response may have created a server-side session. Mark it for
-  // best-effort logout even if the body schema check below fails.
   loggedIn = true;
-  // Current pymt5 LOGIN_RESPONSE_SCHEMA: 160-byte auth token + uint64 session ID.
-  if (result.body.length !== 168) {
-    throw new Error(`Login command returned response_code=0 but body_length=${result.body.length}; expected 168 by the current documented schema. Not treating this as fully validated login.`);
-  }
+  if (result.body.length !== 168) throw new Error(`Login response body_length=${result.body.length}; expected 168. Login schema not validated.`);
   const authToken = result.body.slice(0, 160);
   const view = new DataView(result.body.buffer, result.body.byteOffset, result.body.byteLength);
   const sessionId = view.getBigUint64(160, true);
-  const tokenHasNonZeroByte = authToken.some((b) => b !== 0);
-  const sessionIdPresent = sessionId !== 0n;
-  authToken.fill(0);
-  result.body.fill(0);
-  log(`Login response schema parsed: auth_token_length=160; token_has_nonzero_bytes=${tokenHasNonZeroByte}; session_id_nonzero=${sessionIdPresent}. Token and session ID values were not displayed.`);
-  if (!tokenHasNonZeroByte || !sessionIdPresent) {
-    log('Login response schema parsed, but token or session ID is all-zero; continuing only to test whether a read-only rates request is accepted.', 'warn');
-  }
-  loggedIn = true;
+  const tokenPresent = authToken.some((b) => b !== 0);
+  const sessionPresent = sessionId !== 0n;
+  authToken.fill(0); result.body.fill(0);
+  if (!tokenPresent || !sessionPresent) throw new Error('Login response schema parsed but token or session ID is empty.');
+  log('Read-only login schema validated: 160-byte auth token and nonzero session ID. Values not displayed.', 'ok');
 }
 
-function buildRatesPayload(startTs, endTs) {
-  return concatBytes(
-    fixedUtf16(SYMBOL, 64),
-    u16(PERIOD_M15),
-    i32(startTs),
-    i32(endTs)
-  );
+function getSelectedSymbol() {
+  const selected = $('symbol').value;
+  const symbol = selected === '__custom__' ? $('customSymbol').value.trim() : selected;
+  if (!symbol) throw new Error('請選擇或輸入商品名稱。');
+  if (symbol.length > 32 || !/^[A-Za-z0-9._-]+$/.test(symbol)) throw new Error('商品名稱格式不正確；僅接受最多 32 個英數字、點、底線或連字號。');
+  return symbol.toUpperCase();
+}
+
+function getSelectedTimeframe() {
+  const minutes = Number($('timeframe').value);
+  const timeframe = TIMEFRAMES.get(minutes);
+  if (!timeframe) throw new Error('不支援的 K 線週期。');
+  return { minutes, ...timeframe };
+}
+
+function parseUtcDateTime(value, label) {
+  const match = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})(?::(\d{2}))?$/.exec(value);
+  if (!match) throw new Error(`${label}格式錯誤。`);
+  const [, ys, mos, ds, hs, mis, ss = '0'] = match;
+  const parts = [Number(ys), Number(mos), Number(ds), Number(hs), Number(mis), Number(ss)];
+  const [y, mo, d, h, mi, s] = parts;
+  const ms = Date.UTC(y, mo - 1, d, h, mi, s);
+  const check = new Date(ms);
+  if (check.getUTCFullYear() !== y || check.getUTCMonth() !== mo - 1 || check.getUTCDate() !== d || check.getUTCHours() !== h || check.getUTCMinutes() !== mi || check.getUTCSeconds() !== s) {
+    throw new Error(`${label}不是有效的 UTC 日期時間。`);
+  }
+  return Math.floor(ms / 1000);
+}
+
+function formatInputUtc(date) { return date.toISOString().slice(0, 16); }
+function setRangeInputs(start, end) {
+  $('startUtc').value = formatInputUtc(start);
+  $('endUtc').value = formatInputUtc(end);
+}
+function applyRangePreset(value) {
+  const now = new Date();
+  const end = new Date(Math.floor(now.getTime() / 60000) * 60000);
+  let start = new Date(end);
+  if (value === '24h') start = new Date(end.getTime() - 24 * 3600 * 1000);
+  else if (value === '7d') start = new Date(end.getTime() - 7 * 24 * 3600 * 1000);
+  else if (value === '30d') start = new Date(end.getTime() - 30 * 24 * 3600 * 1000);
+  else if (value === '90d') start = new Date(end.getTime() - 90 * 24 * 3600 * 1000);
+  else return;
+  setRangeInputs(start, end);
+}
+function getRequestedRange() {
+  const startTs = parseUtcDateTime($('startUtc').value, '開始時間');
+  const endTs = parseUtcDateTime($('endUtc').value, '結束時間');
+  if (startTs >= endTs) throw new Error('開始時間必須早於結束時間。');
+  if (endTs > Math.floor(Date.now() / 1000) + 60) throw new Error('結束時間不能超過目前時間。');
+  if (startTs < 0 || endTs > 2147483647) throw new Error('目前協定使用 signed 32-bit Unix seconds，日期需介於 1970 至 2038 年。');
+  return { startTs, endTs };
+}
+
+function estimateBars(startTs, endTs, timeframe) {
+  if (timeframe.months) return Math.ceil((endTs - startTs) / (28 * 86400));
+  return Math.ceil((endTs - startTs) / timeframe.seconds);
+}
+
+function buildRatesPayload(symbol, timeframeMinutes, startTs, endTs) {
+  // pymt5 get_rates() specifies the wire period argument in minutes.
+  return concatBytes(fixedUtf16(symbol, 64), u16(timeframeMinutes), i32(startTs), i32(endTs));
 }
 
 function parseRateBars(body) {
   if (body.length === 0) return { format: 'empty', bars: [] };
   const standard = body.length % 48 === 0;
   const extended = body.length % 56 === 0;
-  if (standard && extended) {
-    throw new Error(`Rates body length ${body.length} is divisible by both 48 and 56; format is ambiguous, refusing to guess.`);
-  }
-  if (!standard && !extended) {
-    throw new Error(`Rates body length ${body.length} is neither a multiple of 48 nor 56 bytes.`);
-  }
+  if (standard && extended) throw new Error(`Rates body length ${body.length} is divisible by both 48 and 56; refusing ambiguous format.`);
+  if (!standard && !extended) throw new Error(`Rates body length ${body.length} is neither a multiple of 48 nor 56 bytes.`);
   const recordSize = standard ? 48 : 56;
   const format = standard ? 'standard-48-byte' : 'extended-56-byte';
   const bars = [];
@@ -389,72 +457,73 @@ function parseRateBars(body) {
     const tickVolume = view.getBigInt64(offset + 36, true).toString();
     const spread = view.getInt32(offset + 44, true);
     const realVolume = standard ? '' : view.getBigInt64(offset + 48, true).toString();
-    if (!Number.isFinite(open) || !Number.isFinite(high) || !Number.isFinite(low) || !Number.isFinite(close)) {
-      throw new Error(`Invalid OHLC value in rate record at byte offset ${offset}`);
-    }
+    if (![open, high, low, close].every(Number.isFinite)) throw new Error(`Invalid OHLC value at byte offset ${offset}`);
+    if (time < 0) throw new Error(`Invalid negative bar timestamp at byte offset ${offset}`);
     bars.push({ time, open, high, low, close, tickVolume, spread, realVolume });
   }
   return { format, bars };
 }
 
-function csvEscape(value) {
-  const text = String(value ?? '');
-  return /[",\r\n]/.test(text) ? '"' + text.replace(/"/g, '""') + '"' : text;
+function barCloseTimeUtc(openTs, timeframe) {
+  if (timeframe.months) {
+    const d = new Date(openTs * 1000);
+    d.setUTCMonth(d.getUTCMonth() + timeframe.months);
+    return Math.floor(d.getTime() / 1000);
+  }
+  return openTs + timeframe.seconds;
 }
+function isoUtc(ts) { return new Date(ts * 1000).toISOString().replace('.000Z', 'Z'); }
+function csvEscape(value) { const text = String(value ?? ''); return /[",\r\n]/.test(text) ? '"' + text.replace(/"/g, '""') + '"' : text; }
 
-function makeCsv(bars, endTs) {
+function makeCsv(bars, symbol, timeframe, startTs, endTs) {
   const headers = [
-    'symbol', 'timeframe',
-    'bar_open_time_utc_iso8601',
-    'bar_open_time_utc_unix_seconds',
-    'timestamp_timezone',
-    'open', 'high', 'low', 'close',
-    'tick_volume', 'spread_points', 'real_volume', 'is_closed'
+    'symbol', 'timeframe', 'timeframe_minutes',
+    'query_start_utc_iso8601', 'query_end_utc_iso8601',
+    'bar_open_time_utc_iso8601', 'bar_close_time_utc_iso8601',
+    'bar_open_time_utc_unix_seconds', 'timestamp_timezone',
+    'open', 'high', 'low', 'close', 'tick_volume', 'spread_points', 'real_volume', 'is_closed'
   ];
   const lines = [headers.join(',')];
   for (const bar of bars) {
-    const iso = new Date(bar.time * 1000).toISOString();
-    const isClosed = (bar.time + PERIOD_SECONDS) <= endTs;
+    const closeTs = barCloseTimeUtc(bar.time, timeframe);
     const row = [
-      SYMBOL, 'M15', iso, bar.time, 'UTC',
+      symbol, timeframe.label, timeframe.minutes,
+      isoUtc(startTs), isoUtc(endTs),
+      isoUtc(bar.time), isoUtc(closeTs), bar.time, 'UTC',
       bar.open, bar.high, bar.low, bar.close,
-      bar.tickVolume, bar.spread, bar.realVolume, String(isClosed)
+      bar.tickVolume, bar.spread, bar.realVolume,
+      String(closeTs <= endTs)
     ];
     lines.push(row.map(csvEscape).join(','));
   }
   return '\uFEFF' + lines.join('\r\n') + '\r\n';
 }
 
-function downloadCsv(csvText) {
+function safeFilePart(value) { return value.replace(/[^A-Za-z0-9._-]+/g, '_'); }
+function downloadCsv(csvText, filename) {
   const blob = new Blob([csvText], { type: 'text/csv;charset=utf-8' });
   const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'EURUSD_M15_last_24h_UTC.csv';
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  setTimeout(() => URL.revokeObjectURL(url), 1500);
+  const a = document.createElement('a'); a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 2000);
 }
 
-function renderPreview(bars) {
-  const body = $('preview');
-  body.replaceChildren();
-  const last = bars.slice(-5).reverse();
+function renderPreview(bars, timeframe, endTs) {
+  const body = $('preview'); body.replaceChildren();
+  const last = bars.slice(-10).reverse();
   if (!last.length) {
-    const tr = document.createElement('tr');
-    const td = document.createElement('td');
-    td.colSpan = 5; td.textContent = '查詢成功，但該範圍沒有 K 線資料。'; td.style.textAlign = 'left';
-    tr.appendChild(td); body.appendChild(tr); return;
+    const tr = document.createElement('tr'); const td = document.createElement('td');
+    td.colSpan = 7; td.textContent = '查詢成功，但指定 UTC 區間沒有 K 線。'; td.style.textAlign = 'left'; tr.appendChild(td); body.appendChild(tr); return;
   }
   for (const bar of last) {
     const tr = document.createElement('tr');
-    const values = [new Date(bar.time * 1000).toISOString(), bar.open, bar.high, bar.low, bar.close];
-    for (const value of values) {
-      const td = document.createElement('td');
-      td.textContent = String(value);
+    const status = barCloseTimeUtc(bar.time, timeframe) <= endTs ? 'CLOSED' : 'FORMING';
+    const values = [isoUtc(bar.time), bar.open, bar.high, bar.low, bar.close, bar.tickVolume, status];
+    values.forEach((value, i) => {
+      const td = document.createElement('td'); td.textContent = String(value);
+      if (i === 6) td.className = status === 'CLOSED' ? 'ok' : 'warn';
       tr.appendChild(td);
-    }
+    });
     body.appendChild(tr);
   }
 }
@@ -462,118 +531,117 @@ function renderPreview(bars) {
 async function bestEffortLogout() {
   if (!loggedIn || !socket || socket.readyState !== WebSocket.OPEN || pendingRequest) return;
   try {
-    const result = await request(CMD_LOGOUT, new Uint8Array(0), 'cmd=2 Logout', 5000);
-    if (result.responseCode === 0) log('Logout acknowledged by server.');
+    const result = await request(CMD_LOGOUT, new Uint8Array(0), 'cmd=2 Logout', 6000);
+    if (result.responseCode === 0) log('Logout acknowledged by server.', 'ok');
     else log(`Logout response_code=${result.responseCode}.`, 'warn');
-  } catch (err) {
-    log(`Logout attempt did not complete: ${err.message}`, 'warn');
-  } finally {
-    loggedIn = false;
-  }
+    result.body.fill(0);
+  } catch (err) { log(`Logout attempt did not complete: ${err.message}`, 'warn'); }
+  finally { loggedIn = false; }
 }
 
 async function run() {
   if (running) return;
-  const loginText = $('login').value.trim();
   let password = $('password').value;
   let otp = $('otp').value;
+  let loginPayloadBuffer = null;
+  let ratesPayload = null;
   if (!isSecureContext || !crypto || !crypto.subtle) { setStatus('此頁面需要 HTTPS Secure Context 和 Web Crypto；請使用 GitHub Pages HTTPS 網址。', 'err'); return; }
+  const loginText = $('login').value.trim();
   if (!/^\d+$/.test(loginText)) { setStatus('請輸入有效的 MT5 Login ID。', 'err'); return; }
   if (!password) { setStatus('請輸入 FTMO Investor / Read-only Password。', 'err'); return; }
   const loginId = Number(loginText);
-  if (!Number.isSafeInteger(loginId) || loginId <= 0) { setStatus('MT5 Login ID 超出可安全處理的數值範圍。', 'err'); return; }
+  if (!Number.isSafeInteger(loginId) || loginId <= 0) { setStatus('MT5 Login ID 超出可安全處理範圍。', 'err'); return; }
 
-  running = true;
-  $('run').disabled = true;
-  $('metric-bars').textContent = '—';
-  $('metric-format').textContent = '—';
-  $('metric-range').textContent = '24h';
-  $('preview').innerHTML = '<tr><td colspan="5" style="text-align:left;color:#9eabc1">正在取得資料…</td></tr>';
-  setStatus('連線與下載進行中…');
-  pushCount = 0;
-  let loginPayloadBuffer = null;
+  let symbol, timeframe, range;
+  try {
+    symbol = getSelectedSymbol();
+    timeframe = getSelectedTimeframe();
+    range = getRequestedRange();
+    const estimated = estimateBars(range.startTs, range.endTs, timeframe);
+    if (estimated > MAX_ESTIMATED_BARS) throw new Error(`預估約 ${estimated.toLocaleString()} 根 K 線，超過本頁單次查詢上限 ${MAX_ESTIMATED_BARS.toLocaleString()} 根。請縮短時間範圍或改用較大的週期。`);
+  } catch (err) { setStatus(err.message, 'err'); return; }
+
+  running = true; $('run').disabled = true;
+  $('metric-symbol').textContent = symbol;
+  $('metric-timeframe').textContent = timeframe.label;
+  $('metric-bars').textContent = '—'; $('metric-format').textContent = '—';
+  $('preview').innerHTML = '<tr><td colspan="7" style="text-align:left;color:#9aa9c0">正在取得資料…</td></tr>';
+  $('rangeSummary').textContent = `查詢區間：${isoUtc(range.startTs)} 至 ${isoUtc(range.endTs)}（UTC）`;
+  setStatus('連線、登入與歷史資料下載進行中…');
 
   try {
-    const endTs = Math.floor(Date.now() / 1000);
-    const startTs = endTs - LOOKBACK_SECONDS;
-    log(`Request range: ${new Date(startTs * 1000).toISOString()} to ${new Date(endTs * 1000).toISOString()} (UTC).`);
+    log(`Request: symbol=${symbol}; timeframe=${timeframe.label} (${timeframe.minutes} minutes); range=${isoUtc(range.startTs)} to ${isoUtc(range.endTs)} UTC.`);
+    log(`Estimated bars: ${estimateBars(range.startTs, range.endTs, timeframe).toLocaleString()}.`);
     await connectWebSocket();
     await doBootstrap();
 
     log('Preparing read-only login command (cmd=28).');
     loginPayloadBuffer = buildLoginPayload(loginId, password, otp);
-    if (loginPayloadBuffer.length !== 920) throw new Error(`Login payload size mismatch: ${loginPayloadBuffer.length} bytes, expected 920`);
-    // Clear visible and local credential references immediately after constructing the request.
-    $('password').value = '';
-    $('otp').value = '';
-    password = '';
-    otp = '';
+    if (loginPayloadBuffer.length !== 920) throw new Error(`Login payload size mismatch: ${loginPayloadBuffer.length} bytes`);
+    $('password').value = ''; $('otp').value = ''; password = ''; otp = '';
     const loginResult = await request(CMD_LOGIN, loginPayloadBuffer, 'cmd=28 Read-only Login', 15000);
-    loginPayloadBuffer.fill(0);
-    loginPayloadBuffer = null;
+    loginPayloadBuffer.fill(0); loginPayloadBuffer = null;
     validateLoginResponse(loginResult);
-    log('Read-only login response schema validated. No order/trade command was sent.', 'ok');
-
-    // Allow any asynchronous login-status notification to be handled before history request.
+    log('Read-only login accepted. No order/trade command was sent.', 'ok');
     await new Promise((resolve) => setTimeout(resolve, 180));
 
-    const ratesPayload = buildRatesPayload(startTs, endTs);
-    log(`Requesting ${SYMBOL} M15 rates for the last 24 hours (UTC).`);
-    const ratesResult = await request(CMD_GET_RATES, ratesPayload, 'cmd=11 Get Rates', 20000);
-    ratesPayload.fill(0);
+    ratesPayload = buildRatesPayload(symbol, timeframe.minutes, range.startTs, range.endTs);
+    log(`Requesting ${symbol} ${timeframe.label} historical rates for selected UTC range.`);
+    const ratesResult = await request(CMD_GET_RATES, ratesPayload, `cmd=11 Get Rates (${symbol} ${timeframe.label})`, 30000);
+    ratesPayload.fill(0); ratesPayload = null;
     if (ratesResult.responseCode !== 0) throw new Error(`Historical rates request rejected: response_code=${ratesResult.responseCode}`);
 
     const parsed = parseRateBars(ratesResult.body);
     ratesResult.body.fill(0);
     const dedup = new Map();
     for (const bar of parsed.bars) {
-      if (bar.time >= startTs && bar.time <= endTs) dedup.set(bar.time, bar);
+      if (bar.time >= range.startTs && bar.time <= range.endTs) dedup.set(bar.time, bar);
     }
     const bars = [...dedup.values()].sort((a, b) => a.time - b.time);
 
     $('metric-bars').textContent = String(bars.length);
-    $('metric-format').textContent = parsed.format === 'empty' ? 'empty' : parsed.format;
-    renderPreview(bars);
-    if (bars.length) {
-      log(`Parsed ${bars.length} M15 bars using ${parsed.format}. Earliest=${new Date(bars[0].time * 1000).toISOString()}, latest=${new Date(bars[bars.length - 1].time * 1000).toISOString()}.`, 'ok');
-    } else {
-      log('Rates command succeeded but returned no bars in the requested UTC range.', 'warn');
-    }
+    $('metric-format').textContent = parsed.format;
+    renderPreview(bars, timeframe, range.endTs);
+    if (bars.length) log(`Parsed ${bars.length} ${timeframe.label} bars using ${parsed.format}. Earliest=${isoUtc(bars[0].time)}, latest=${isoUtc(bars[bars.length - 1].time)}.`, 'ok');
+    else log('Rates command succeeded but returned no bars in the selected UTC range.', 'warn');
 
-    const csv = makeCsv(bars, endTs);
-    downloadCsv(csv);
-    log('CSV download started: EURUSD_M15_last_24h_UTC.csv. Time columns are explicitly UTC.', 'ok');
-    setStatus(`完成：取得 ${bars.length} 根 EURUSD M15 K 線，CSV 已開始下載。`, 'ok');
+    const csv = makeCsv(bars, symbol, timeframe, range.startTs, range.endTs);
+    const filename = `${safeFilePart(symbol)}_${timeframe.label}_${isoUtc(range.startTs).slice(0,10)}_to_${isoUtc(range.endTs).slice(0,10)}_UTC.csv`;
+    downloadCsv(csv, filename);
+    log(`CSV download started: ${filename}. All timestamps are explicitly UTC.`, 'ok');
+    setStatus(`完成：取得 ${bars.length} 根 ${symbol} ${timeframe.label} K 線，CSV 已開始下載。`, 'ok');
   } catch (err) {
     log(`ERROR: ${err && err.message ? err.message : String(err)}`, 'err');
     setStatus(`執行失敗：${err && err.message ? err.message : String(err)}`, 'err');
   } finally {
     if (loginPayloadBuffer) loginPayloadBuffer.fill(0);
-    loginPayloadBuffer = null;
-    password = '';
-    otp = '';
-    $('password').value = '';
-    $('otp').value = '';
+    if (ratesPayload) ratesPayload.fill(0);
+    password = ''; otp = ''; $('password').value = ''; $('otp').value = '';
     await bestEffortLogout();
     if (socket && socket.readyState === WebSocket.OPEN) socket.close(1000, 'Client operation complete');
-    if (activeAesKey) activeAesKey = null;
-    pendingRequest = null;
-    running = false;
-    $('run').disabled = false;
+    activeAesKey = null; pendingRequest = null; loggedIn = false; running = false; $('run').disabled = false;
   }
 }
 
+$('symbol').addEventListener('change', () => {
+  $('customSymbolWrap').classList.toggle('hidden', $('symbol').value !== '__custom__');
+});
+$('rangePreset').addEventListener('change', () => applyRangePreset($('rangePreset').value));
+$('startUtc').addEventListener('change', () => { $('rangePreset').value = 'custom'; });
+$('endUtc').addEventListener('change', () => { $('rangePreset').value = 'custom'; });
 $('run').addEventListener('click', run);
 $('clear').addEventListener('click', () => {
   $('log').textContent = '紀錄已清除。時間格式為 UTC。';
   setStatus('尚未執行。');
-  $('metric-bars').textContent = '—';
-  $('metric-format').textContent = '—';
-  $('preview').innerHTML = '<tr><td colspan="5" style="text-align:left;color:#9eabc1">尚無資料</td></tr>';
+  $('metric-symbol').textContent = '—'; $('metric-timeframe').textContent = '—'; $('metric-bars').textContent = '—'; $('metric-format').textContent = '—';
+  $('rangeSummary').textContent = '尚未查詢。所有時間均為 UTC。';
+  $('preview').innerHTML = '<tr><td colspan="7" style="text-align:left;color:#9aa9c0">尚無資料</td></tr>';
 });
 
+applyRangePreset('24h');
 log(`Page loaded. Origin=${location.origin}; endpoint=${ENDPOINT}.`);
 log('Mode: browser-native WebSocket + Web Crypto; no credential persistence.');
+log('Time inputs are interpreted as UTC explicitly, regardless of device timezone.');
 </script>
 </body>
 </html>

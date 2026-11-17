@@ -1,0 +1,313 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101827">
+  <title>FTMO WebSocket Origin 測試</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0b1220;
+      --panel: #121d2e;
+      --panel-2: #172438;
+      --line: #2a3a51;
+      --text: #edf3fb;
+      --muted: #9eafc5;
+      --accent: #70b7ff;
+      --good: #43d39e;
+      --warn: #ffc56e;
+      --bad: #ff8585;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: radial-gradient(circle at 12% 0%, #152943 0, var(--bg) 42rem);
+      color: var(--text);
+      font: 15px/1.55 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    main { width: min(900px, calc(100% - 32px)); margin: 42px auto; }
+    header { margin-bottom: 24px; }
+    .eyebrow { color: var(--accent); font-size: 12px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
+    h1 { margin: 7px 0 8px; font-size: clamp(25px, 5vw, 36px); line-height: 1.2; }
+    p { margin: 7px 0; color: var(--muted); }
+    .card {
+      background: color-mix(in srgb, var(--panel) 94%, transparent);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 20px;
+      margin: 16px 0;
+      box-shadow: 0 18px 45px #0003;
+    }
+    label { display: block; margin: 0 0 7px; color: #c8d7e9; font-size: 13px; font-weight: 650; }
+    input {
+      display: block; width: 100%; min-height: 46px; padding: 10px 12px;
+      border-radius: 9px; border: 1px solid #3a4e69; background: #0b1524;
+      color: var(--text); font: 14px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    }
+    input:focus { outline: 2px solid #70b7ff66; border-color: var(--accent); }
+    .meta { display: grid; grid-template-columns: 130px 1fr; gap: 7px 12px; margin-top: 16px; font-size: 13px; }
+    .meta dt { color: var(--muted); }
+    .meta dd { margin: 0; overflow-wrap: anywhere; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+    .actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
+    button {
+      min-height: 42px; border: 1px solid transparent; border-radius: 9px;
+      padding: 9px 15px; cursor: pointer; font-weight: 700; color: #081321;
+      background: var(--accent);
+    }
+    button.secondary { color: var(--text); background: var(--panel-2); border-color: var(--line); }
+    button:disabled { cursor: not-allowed; opacity: .45; }
+    .status { display: flex; align-items: center; gap: 10px; margin-top: 16px; padding: 12px 13px; border-radius: 10px; background: #0b1524; border: 1px solid var(--line); }
+    .dot { width: 10px; height: 10px; border-radius: 50%; background: #77869a; flex: 0 0 auto; }
+    .status[data-state="success"] .dot { background: var(--good); box-shadow: 0 0 12px #43d39e88; }
+    .status[data-state="warning"] .dot { background: var(--warn); }
+    .status[data-state="error"] .dot { background: var(--bad); }
+    #statusText { font-weight: 700; }
+    .notice { border-left: 3px solid var(--warn); padding: 9px 12px; background: #ffc56e0d; color: #d9e3ef; border-radius: 0 8px 8px 0; font-size: 13px; }
+    .log {
+      min-height: 210px; max-height: 340px; overflow: auto; padding: 13px;
+      background: #08111e; border: 1px solid var(--line); border-radius: 10px;
+      color: #c6d5e8; white-space: pre-wrap; overflow-wrap: anywhere;
+      font: 12px/1.65 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    }
+    .small { font-size: 12px; }
+    a { color: var(--accent); }
+    footer { margin: 24px 0 36px; color: var(--muted); font-size: 12px; }
+    @media (max-width: 560px) {
+      main { margin: 24px auto; }
+      .card { padding: 15px; }
+      .meta { grid-template-columns: 1fr; gap: 3px; }
+      .meta dd { margin-bottom: 8px; }
+      .actions button { flex: 1 1 130px; }
+    }
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <div class="eyebrow">Browser-only diagnostic · no account login</div>
+    <h1>FTMO WebSocket Origin 測試</h1>
+    <p>測試 FTMO MT5 Web Terminal 的 WebSocket 是否接受這個 GitHub Pages 網站的來源（Origin）。不會登入帳戶、不會傳送帳密，也不會下單。</p>
+  </header>
+
+  <section class="card">
+    <label for="endpoint">WebSocket Endpoint（必須是 wss://）</label>
+    <input id="endpoint" type="url" spellcheck="false" autocomplete="off"
+      value="wss://mt5demowebterminal.ftmo.com/terminal">
+
+    <dl class="meta">
+      <dt>本頁 Origin</dt><dd id="originValue">讀取中…</dd>
+      <dt>瀏覽器來源</dt><dd id="sourceValue">讀取中…</dd>
+      <dt>測試內容</dt><dd>只建立 WebSocket 連線，不傳送應用程式封包</dd>
+    </dl>
+
+    <div class="status" id="statusBox" data-state="idle" role="status" aria-live="polite">
+      <span class="dot"></span><span id="statusText">尚未測試</span>
+    </div>
+
+    <div class="actions">
+      <button id="connectBtn" type="button">測試 WebSocket 握手</button>
+      <button id="disconnectBtn" class="secondary" type="button" disabled>中斷連線</button>
+      <button id="copyBtn" class="secondary" type="button">複製診斷紀錄</button>
+      <button id="clearBtn" class="secondary" type="button">清除紀錄</button>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2 style="font-size:17px;margin:0 0 9px">測試紀錄</h2>
+    <div id="log" class="log" aria-live="polite">尚無紀錄。</div>
+  </section>
+
+  <section class="card">
+    <h2 style="font-size:17px;margin:0 0 10px">如何判讀</h2>
+    <p><strong style="color:var(--good)">「握手成功」</strong>：瀏覽器觸發 WebSocket <code>open</code> 事件，表示伺服器接受了這個頁面來源的 WebSocket 握手。這只證明傳輸層連線成功，尚未測試 MT5 加密初始化、登入或歷史 K 線請求。</p>
+    <p><strong style="color:var(--warn)">「連線失敗」</strong>：可能是 Origin 被拒絕、Endpoint 不正確、伺服器不可用、TLS/DNS 問題或網路政策限制。瀏覽器通常不會向 JavaScript 公開握手失敗的 HTTP 狀態碼，因此單靠這個頁面不能斷定是哪一種原因。</p>
+    <div class="notice">請從已部署的 GitHub Pages HTTPS 網址執行測試。若直接以 file:// 開啟，測到的不是 GitHub Pages Origin。請勿在此頁輸入 MT5 密碼、Cookie 或 Token。</div>
+  </section>
+
+  <footer>
+    這是獨立的靜態診斷頁，沒有外部 JavaScript 套件、分析追蹤或帳戶登入功能。頁面只記錄連線狀態、時間、Close code 及訊息大小，不會顯示 WebSocket 訊息內容。
+  </footer>
+</main>
+<script>
+(() => {
+  const endpointInput = document.getElementById('endpoint');
+  const originValue = document.getElementById('originValue');
+  const sourceValue = document.getElementById('sourceValue');
+  const statusBox = document.getElementById('statusBox');
+  const statusText = document.getElementById('statusText');
+  const logBox = document.getElementById('log');
+  const connectBtn = document.getElementById('connectBtn');
+  const disconnectBtn = document.getElementById('disconnectBtn');
+  const copyBtn = document.getElementById('copyBtn');
+  const clearBtn = document.getElementById('clearBtn');
+
+  let socket = null;
+  let connectionTimer = null;
+  let lines = [];
+  let handshakeAccepted = false;
+
+  const nowUTC = () => new Date().toISOString();
+
+  function log(message) {
+    const line = `[${nowUTC()}] ${message}`;
+    lines.push(line);
+    if (lines.length > 250) lines = lines.slice(-250);
+    logBox.textContent = lines.join('\n');
+    logBox.scrollTop = logBox.scrollHeight;
+  }
+
+  function setStatus(state, message) {
+    statusBox.dataset.state = state;
+    statusText.textContent = message;
+  }
+
+  function setBusy(busy) {
+    connectBtn.disabled = busy;
+    disconnectBtn.disabled = !busy;
+  }
+
+  originValue.textContent = location.origin || '(opaque / null origin)';
+  sourceValue.textContent = location.protocol === 'file:'
+    ? 'file://（不是 GitHub Pages 網站來源）'
+    : location.protocol + '//' + location.host;
+
+  if (location.protocol === 'file:') {
+    setStatus('warning', '目前以本機 file:// 開啟；請部署到 GitHub Pages 後再測試');
+    log('提示：本頁目前不是 GitHub Pages Origin。');
+  } else if (location.protocol !== 'https:') {
+    setStatus('warning', '建議從 HTTPS 網站執行測試');
+    log('警告：目前頁面不是 HTTPS。');
+  } else {
+    setStatus('idle', '已就緒，尚未建立連線');
+    log('診斷頁已載入。');
+  }
+
+  function disconnect(reason = '由使用者中斷') {
+    if (connectionTimer) {
+      clearTimeout(connectionTimer);
+      connectionTimer = null;
+    }
+    if (socket && (socket.readyState === WebSocket.CONNECTING || socket.readyState === WebSocket.OPEN)) {
+      log(reason);
+      socket.close(1000, 'Diagnostic finished');
+    }
+  }
+
+  connectBtn.addEventListener('click', () => {
+    if (socket && (socket.readyState === WebSocket.CONNECTING || socket.readyState === WebSocket.OPEN)) {
+      return;
+    }
+
+    const endpoint = endpointInput.value.trim();
+    let parsed;
+    try {
+      parsed = new URL(endpoint);
+    } catch (_) {
+      setStatus('error', 'Endpoint 格式不正確');
+      log('錯誤：無法解析 Endpoint URL。');
+      return;
+    }
+    if (parsed.protocol !== 'wss:') {
+      setStatus('error', '只允許安全的 wss:// Endpoint');
+      log('錯誤：Endpoint 必須使用 wss://。');
+      return;
+    }
+    if (location.protocol === 'file:') {
+      log('注意：目前使用 file:// Origin；請部署到 GitHub Pages 才能驗證 GitHub Pages Origin。');
+    }
+
+    handshakeAccepted = false;
+    setBusy(true);
+    setStatus('warning', '正在嘗試 WebSocket 握手…');
+    log(`開始連線：${parsed.origin}${parsed.pathname}`);
+    log(`頁面 Origin：${location.origin}`);
+
+    try {
+      socket = new WebSocket(endpoint);
+      socket.binaryType = 'arraybuffer';
+    } catch (error) {
+      setBusy(false);
+      setStatus('error', '建立 WebSocket 物件失敗');
+      log(`建立失敗：${error.name || 'Error'}：${error.message || '無詳細訊息'}`);
+      return;
+    }
+
+    connectionTimer = setTimeout(() => {
+      if (socket && socket.readyState === WebSocket.CONNECTING) {
+        setStatus('error', '連線逾時，尚未完成握手');
+        log('逾時：15 秒內沒有收到 open 事件。瀏覽器不會公開握手拒絕的 HTTP 狀態碼。');
+        socket.close();
+      }
+    }, 15000);
+
+    socket.addEventListener('open', () => {
+      handshakeAccepted = true;
+      if (connectionTimer) clearTimeout(connectionTimer);
+      connectionTimer = null;
+      setStatus('success', 'WebSocket 握手成功：伺服器接受了此頁面的 Origin');
+      log('成功：收到 WebSocket open 事件。握手已完成；此結果不代表 MT5 應用程式協定或登入成功。');
+    });
+
+    socket.addEventListener('message', (event) => {
+      let size = 0;
+      let kind = typeof event.data;
+      if (typeof event.data === 'string') size = new Blob([event.data]).size;
+      else if (event.data instanceof ArrayBuffer) size = event.data.byteLength;
+      else if (event.data instanceof Blob) size = event.data.size;
+      log(`收到伺服器資料：type=${kind}, bytes=${size}（內容刻意不顯示）`);
+    });
+
+    socket.addEventListener('error', () => {
+      log('WebSocket error 事件。瀏覽器基於安全限制不會提供更細的握手錯誤原因。');
+      if (!handshakeAccepted) {
+        setStatus('error', 'WebSocket 未能完成握手；請查看判讀說明');
+      }
+    });
+
+    socket.addEventListener('close', (event) => {
+      if (connectionTimer) clearTimeout(connectionTimer);
+      connectionTimer = null;
+      setBusy(false);
+      const reason = event.reason ? `, reason=${event.reason}` : '';
+      log(`連線關閉：code=${event.code}, clean=${event.wasClean}${reason}`);
+      if (handshakeAccepted) {
+        setStatus('success', '握手曾成功；連線目前已關閉（未測試 MT5 登入）');
+      } else {
+        setStatus('error', '握手未成功；請依判讀說明排查');
+      }
+    });
+  });
+
+  disconnectBtn.addEventListener('click', () => disconnect());
+
+  copyBtn.addEventListener('click', async () => {
+    const report = [
+      'FTMO WebSocket Origin diagnostic',
+      `Page origin: ${location.origin}`,
+      `Endpoint: ${endpointInput.value.trim()}`,
+      `Generated UTC: ${nowUTC()}`,
+      ...lines
+    ].join('\n');
+    try {
+      await navigator.clipboard.writeText(report);
+      setStatus(handshakeAccepted ? 'success' : 'idle', '診斷紀錄已複製');
+    } catch (_) {
+      log('無法使用剪貼簿 API；請手動選取紀錄複製。');
+    }
+  });
+
+  clearBtn.addEventListener('click', () => {
+    lines = [];
+    logBox.textContent = '尚無紀錄。';
+    log('紀錄已清除。');
+  });
+
+  window.addEventListener('beforeunload', () => {
+    if (socket && socket.readyState === WebSocket.OPEN) socket.close(1000, 'Page closing');
+  });
+})();
+</script>
+</body>
+</html>

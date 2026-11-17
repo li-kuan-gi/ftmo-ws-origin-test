@@ -3,134 +3,577 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="referrer" content="no-referrer">
-<title>FTMO MT5 Read-only Login Diagnostic v4</title>
+<title>FTMO EURUSD M15 24H CSV Export v5</title>
 <style>
-:root{color-scheme:dark;--bg:#0b1220;--panel:#121c2d;--line:#293b55;--muted:#a8b6ca;--text:#edf3fb;--blue:#8ab8ff;--green:#63d7a2;--red:#ff858b;--amber:#f4c66e}
-*{box-sizing:border-box}body{margin:0;padding:28px 15px 50px;background:var(--bg);color:var(--text);font:15px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif}main{max-width:900px;margin:auto}h1{font-size:25px;line-height:1.2;margin:0 0 8px}.muted{color:var(--muted)}.small{font-size:13px}.panel{background:var(--panel);border:1px solid var(--line);border-radius:15px;padding:19px;margin:16px 0}.grid{display:grid;grid-template-columns:1fr 1fr;gap:13px}.field{display:flex;flex-direction:column;gap:6px}.field.full{grid-column:1/-1}label{font-size:13px;color:var(--muted)}input{width:100%;border:1px solid var(--line);border-radius:9px;background:#09111e;color:var(--text);padding:12px 13px;font:inherit}input:focus{outline:2px solid #5e92d6;border-color:transparent}input[readonly]{color:#c2d1e5}.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}button{border:0;border-radius:9px;padding:12px 17px;background:var(--blue);color:#071321;font-weight:750;cursor:pointer}button.secondary{background:#263954;color:var(--text)}button:disabled{opacity:.5;cursor:not-allowed}.status{border-radius:9px;padding:10px 12px;background:#0b1524;border:1px solid var(--line);margin-top:12px}.ok{color:var(--green)}.bad{color:var(--red)}.warn{color:var(--amber)}#log{background:#070d17;border:1px solid var(--line);border-radius:10px;padding:13px;min-height:220px;max-height:480px;overflow:auto;white-space:pre-wrap;overflow-wrap:anywhere;font:12px/1.65 ui-monospace,SFMono-Regular,Consolas,monospace}.note{border-left:3px solid var(--amber);padding:9px 12px;background:#171a20;color:#e7d5ae;border-radius:4px}.hidden{display:none}@media(max-width:600px){.grid{grid-template-columns:1fr}.field.full{grid-column:auto}}
+:root{color-scheme:dark;--bg:#0b1020;--panel:#121a2b;--muted:#9eabc1;--text:#edf3ff;--line:#2a3852;--accent:#75a7ff;--good:#43cf91;--warn:#ffd06a;--bad:#ff7b85}
+*{box-sizing:border-box}body{margin:0;background:linear-gradient(160deg,#101a31 0%,var(--bg) 54%);color:var(--text);font:15px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:900px;margin:36px auto;padding:0 18px 50px}.card{background:rgba(18,26,43,.96);border:1px solid var(--line);border-radius:16px;padding:22px;margin:16px 0;box-shadow:0 14px 38px #0003}
+h1{font-size:25px;margin:0 0 5px}.sub{color:var(--muted);margin:0 0 20px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.field{display:flex;flex-direction:column;gap:6px}.field.wide{grid-column:1/-1}label{font-size:13px;color:#c7d3e7}input{width:100%;background:#0a1221;color:var(--text);border:1px solid #33435f;border-radius:9px;padding:12px;font:inherit;outline:none}input:focus{border-color:var(--accent);box-shadow:0 0 0 3px #75a7ff22}.hint{font-size:12px;color:var(--muted)}button{border:0;border-radius:10px;padding:12px 17px;font:600 15px system-ui;cursor:pointer;background:var(--accent);color:#071325}button:disabled{opacity:.5;cursor:not-allowed}.secondary{background:#26354f;color:var(--text)}.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}.status{border:1px solid var(--line);background:#0a1221;padding:12px 14px;border-radius:10px;min-height:50px}.ok{color:var(--good)}.warn{color:var(--warn)}.err{color:var(--bad)}#log{height:260px;overflow:auto;white-space:pre-wrap;overflow-wrap:anywhere;background:#070d18;border:1px solid var(--line);border-radius:10px;padding:12px;font:12px/1.55 ui-monospace,SFMono-Regular,Consolas,monospace;color:#c8d5e9}.meta{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.metric{background:#0a1221;border:1px solid var(--line);border-radius:10px;padding:12px}.metric strong{display:block;font-size:18px}.metric span{font-size:12px;color:var(--muted)}table{width:100%;border-collapse:collapse;font:12px ui-monospace,monospace}th,td{text-align:right;padding:8px;border-bottom:1px solid var(--line);white-space:nowrap}th:first-child,td:first-child{text-align:left}.tablewrap{overflow:auto}.note{font-size:13px;color:var(--muted)}code{color:#c5d9ff}a{color:#a9c7ff}@media(max-width:620px){.grid{grid-template-columns:1fr}.meta{grid-template-columns:1fr 1fr}main{margin-top:18px}.card{padding:17px}}
 </style>
 </head>
 <body>
 <main>
-<h1>FTMO MT5 Read-only Login Diagnostic v4</h1>
-<p class="muted">本版沿用已通過測試的 cmd=0 Bootstrap，再以 cmd=28 測試 FTMO 唯讀帳戶登入。只送出 Bootstrap、登入與登出命令；不讀取帳戶資產、不查詢商品、不下載 K 線，也不包含任何下單命令。</p>
-<section class="panel">
-  <div class="grid">
-    <div class="field"><label for="login">MT5 Login ID</label><input id="login" type="text" inputmode="numeric" autocomplete="off" placeholder="輸入 FTMO MT5 帳號"></div>
-    <div class="field"><label for="password">唯讀密碼（Investor / Read-only Password）</label><input id="password" type="password" autocomplete="new-password" placeholder="只在本次操作中輸入"></div>
-    <div class="field full"><label for="otp">OTP（選填；僅當帳戶登入要求時填寫）</label><input id="otp" type="password" autocomplete="one-time-code" placeholder="未要求 OTP 時留空"></div>
-    <div class="field"><label>WebSocket Endpoint</label><input value="wss://mt5demowebterminal.ftmo.com/terminal" readonly></div>
-    <div class="field"><label>目前頁面 Origin</label><input id="origin" readonly></div>
-  </div>
-  <div class="note small" style="margin-top:14px">請只使用 FTMO 的唯讀／Investor 密碼，不要使用主交易密碼。密碼與 OTP 不會寫入網址、GitHub 檔案、localStorage、sessionStorage 或診斷紀錄；頁面只會將登入資料送往上方 FTMO WebSocket。請先確認 GitHub Repository 內的程式碼是你信任的版本，再輸入憑證。</div>
-  <div class="actions"><button id="run">執行唯讀登入測試</button><button id="clear" class="secondary" type="button">清除輸入與紀錄</button><button id="copy" class="secondary" type="button">複製診斷紀錄</button></div>
-  <div id="status" class="status">尚未執行</div>
-</section>
-<section class="panel">
-  <strong>診斷摘要</strong>
-  <div class="grid" style="margin-top:12px">
-    <div><div class="muted small">Bootstrap u16（伺服器 build 候選值）</div><b id="build">—</b></div>
-    <div><div class="muted small">Session AES Key 長度</div><b id="keylen">—</b></div>
-    <div><div class="muted small">登入命令</div><b>cmd=28</b></div>
-    <div><div class="muted small">登出命令</div><b>cmd=2</b></div>
-  </div>
-</section>
-<section class="panel">
-  <strong>執行紀錄（UTC）</strong>
-  <div id="log" role="log" aria-live="polite" style="margin-top:10px"></div>
-</section>
-<p class="muted small">安全與相容性：這是非官方、逆向分析的 MT5 Web Terminal 通訊實作。Bootstrap 成功不保證登入成功；非零 code 只記錄數字，不猜測錯誤原因。code=0 只表示登入命令回應成功；本版尚未解析登入回應中的 Token / Session 欄位，不會宣稱完整登入驗證成功。診斷紀錄不包含密碼、OTP、CID、Session Token、Session ID、AES Key 或原始認證封包。</p>
+  <section class="card">
+    <h1>FTMO EURUSD M15 歷史資料下載</h1>
+    <p class="sub">最近 24 小時 · M15 · UTC · 直接由瀏覽器連線，無需本機 Python Server 或 MT5 Desktop</p>
+    <div class="grid">
+      <div class="field">
+        <label for="login">MT5 Login ID</label>
+        <input id="login" inputmode="numeric" autocomplete="off" placeholder="輸入 FTMO MT5 Login ID">
+      </div>
+      <div class="field">
+        <label for="password">Investor / Read-only Password</label>
+        <input id="password" type="password" autocomplete="new-password" placeholder="唯讀密碼" spellcheck="false">
+      </div>
+      <div class="field wide">
+        <label for="otp">OTP（只有帳戶要求時才填）</label>
+        <input id="otp" type="password" autocomplete="off" placeholder="選填；不需要時留空" spellcheck="false">
+        <span class="hint">帳密只在本次頁面操作時使用，不會寫入 GitHub、localStorage 或診斷日誌。</span>
+      </div>
+    </div>
+    <div class="actions">
+      <button id="run">登入並下載 EURUSD M15 CSV</button>
+      <button id="clear" class="secondary" type="button">清除紀錄</button>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2 style="font-size:17px;margin:0 0 12px">執行狀態</h2>
+    <div id="status" class="status">尚未執行。</div>
+    <div class="meta" style="margin-top:12px">
+      <div class="metric"><strong id="metric-bars">—</strong><span>M15 K 線數量</span></div>
+      <div class="metric"><strong id="metric-format">—</strong><span>資料格式</span></div>
+      <div class="metric"><strong id="metric-range">24h</strong><span>查詢範圍（UTC）</span></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2 style="font-size:17px;margin:0 0 12px">最新 5 根 K 線預覽</h2>
+    <div class="tablewrap">
+      <table><thead><tr><th>Bar open time (UTC)</th><th>Open</th><th>High</th><th>Low</th><th>Close</th></tr></thead><tbody id="preview"><tr><td colspan="5" style="text-align:left;color:#9eabc1">尚無資料</td></tr></tbody></table>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2 style="font-size:17px;margin:0 0 12px">診斷紀錄</h2>
+    <div id="log" aria-live="polite">頁面載入完成。所有日誌時間均為 UTC。</div>
+    <p class="note">安全提醒：不要分享帳密、Session Token、AES Key 或完整網路封包。若失敗，僅分享本頁已遮蔽敏感資料的文字日誌。</p>
+  </section>
+
+  <section class="card">
+    <h2 style="font-size:17px;margin:0 0 8px">時間與資料定義</h2>
+    <p class="note">CSV 時間欄位使用 <code>bar_open_time_utc_iso8601</code>，值以 <code>Z</code> 結尾（例如 <code>2026-11-17T06:00:00Z</code>），代表 UTC。另提供 Unix 秒數欄位及每列 <code>timestamp_timezone=UTC</code>。每根 M15 K 線的時間代表該根 K 線的開盤時間。</p>
+    <p class="note">資料為 FTMO MT5 Web Terminal 回傳的歷史報價，不代表交易所成交量；<code>tick_volume</code> 是 Tick 數量。休市期間不一定有 96 根 K 線。</p>
+  </section>
 </main>
+
 <script>
-(()=>{'use strict';
-const ENDPOINT='wss://mt5demowebterminal.ftmo.com/terminal';
-const OBFUSCATED_KEY='13ef13b2b76dd8:5795gdcfb2fdc1ge85bf768f54773d22fff996e3ge75g5:75';
-const $=id=>document.getElementById(id);
-$('origin').value=location.origin;
-let running=false,socket=null,activeKey=null,pending=null,loginCommandAccepted=false;
-const lines=[];
-const nowUTC=()=>new Date().toISOString();
-function log(message,kind=''){const line=`[${nowUTC()}] ${message}`;lines.push(line);const item=document.createElement('div');if(kind)item.className=kind;item.textContent=line;$('log').appendChild(item);$('log').scrollTop=$('log').scrollHeight;}
-function status(message,kind=''){ $('status').textContent=message; $('status').className='status '+kind; }
-function concat(...parts){const size=parts.reduce((n,p)=>n+p.length,0);const out=new Uint8Array(size);let offset=0;for(const part of parts){out.set(part,offset);offset+=part.length;}return out;}
-function u16(value){const a=new Uint8Array(2);new DataView(a.buffer).setUint16(0,value,true);return a;}
-function u32(value){const a=new Uint8Array(4);new DataView(a.buffer).setUint32(0,value,true);return a;}
-function u64(value){const a=new Uint8Array(8);new DataView(a.buffer).setBigUint64(0,BigInt(value),true);return a;}
-function utf16Units(text,maxUnits){const units=[];for(const char of text){const cp=char.codePointAt(0);if(cp<=0xffff){if(units.length+1>maxUnits)break;units.push(cp);}else{if(units.length+2>maxUnits)break;const n=cp-0x10000;units.push(0xd800+(n>>10),0xdc00+(n&0x3ff));}}return units;}
-function fixedUtf16(text,byteLength){const maxUnits=Math.floor(byteLength/2);const units=utf16Units(text,maxUnits);const out=new Uint8Array(byteLength);const dv=new DataView(out.buffer);for(let i=0;i<units.length;i++)dv.setUint16(i*2,units[i],true);return {bytes:out,units:units.length};}
-function bytesFromHex(hex){if(hex.length%2||!/^[0-9a-f]+$/i.test(hex))throw Error('Bootstrap key hex invalid');const out=new Uint8Array(hex.length/2);for(let i=0;i<out.length;i++)out[i]=parseInt(hex.slice(i*2,i*2+2),16);return out;}
-function initialKey(){let hex='';for(const ch of OBFUSCATED_KEY){const cp=ch.codePointAt(0);if(cp===28)hex+='&';else if(cp===23)hex+='!';else hex+=String.fromCodePoint(cp-1);}return bytesFromHex(hex);}
-async function importAES(raw){return crypto.subtle.importKey('raw',raw,{name:'AES-CBC'},false,['encrypt','decrypt']);}
-async function encryptFrame(command,payload,key){const inner=concat(crypto.getRandomValues(new Uint8Array(2)),u16(command),payload);const k=await importAES(key);const cipher=new Uint8Array(await crypto.subtle.encrypt({name:'AES-CBC',iv:new Uint8Array(16)},k,inner));return concat(u32(cipher.length),u32(1),cipher);}
-async function decryptFrame(frame,key){if(frame.length<24)throw Error(`回應封包太短：${frame.length} bytes`);const dv=new DataView(frame.buffer,frame.byteOffset,frame.byteLength);const declared=dv.getUint32(0,true),version=dv.getUint32(4,true),cipher=frame.slice(8);if(declared!==cipher.length)throw Error(`外層長度不符：declared=${declared}, actual=${cipher.length}`);if(cipher.length%16)throw Error('加密內容不是 AES block 長度');const k=await importAES(key);const plain=new Uint8Array(await crypto.subtle.decrypt({name:'AES-CBC',iv:new Uint8Array(16)},k,cipher));if(plain.length<5)throw Error('解密後內容太短');const pdv=new DataView(plain.buffer,plain.byteOffset,plain.byteLength);return {outerVersion:version,command:pdv.getUint16(2,true),code:plain[4],body:plain.slice(5)};}
-function messageBytes(data){if(data instanceof ArrayBuffer)return Promise.resolve(new Uint8Array(data));if(data instanceof Blob)return data.arrayBuffer().then(b=>new Uint8Array(b));throw Error('收到非 binary WebSocket frame');}
-function connect(){return new Promise((resolve,reject)=>{socket=new WebSocket(ENDPOINT);socket.binaryType='arraybuffer';let settled=false;const timer=setTimeout(()=>{if(!settled){settled=true;try{socket.close();}catch{}reject(Error('WebSocket 連線逾時'));}},15000);socket.onopen=()=>{if(settled)return;settled=true;clearTimeout(timer);log('WebSocket open。','ok');resolve();};socket.onerror=()=>{log('WebSocket error event；瀏覽器不提供詳細握手原因。','bad');if(!settled){settled=true;clearTimeout(timer);reject(Error('WebSocket 連線失敗'));}};socket.onmessage=async event=>{try{if(!activeKey)throw Error('尚未建立加密金鑰');const frame=await messageBytes(event.data);const result=await decryptFrame(frame,activeKey);if(pending&&result.command===pending.command){const p=pending;pending=null;clearTimeout(p.timer);p.resolve(result);}else{log(`收到非預期訊息：command=${result.command}；未輸出 payload。`,'warn');}}catch(e){log(`回應解密／解析錯誤：${e.message}`,'bad');if(pending){const p=pending;pending=null;clearTimeout(p.timer);p.reject(e);}}};socket.onclose=e=>{log(`WebSocket closed：code=${e.code}, clean=${e.wasClean}, reason=${e.reason||'(none)'}`,e.code===1000?'ok':'warn');if(pending){const p=pending;pending=null;clearTimeout(p.timer);p.reject(Error(`等待 cmd=${p.command} 時連線關閉（${e.code}）`));}};});}
-async function request(command,payload=new Uint8Array(0),timeoutMs=25000){if(!socket||socket.readyState!==WebSocket.OPEN)throw Error('WebSocket 未連線');if(pending)throw Error('前一個命令仍在等待回應');return new Promise(async(resolve,reject)=>{const p={command,resolve,reject,timer:null};p.timer=setTimeout(()=>{if(pending===p){pending=null;reject(Error(`cmd=${command} 等待回應逾時；伺服器是否處理請求無法確認`));try{socket.close(1000,'request timeout');}catch{}}},timeoutMs);pending=p;try{const packet=await encryptFrame(command,payload,activeKey);if(socket.readyState!==WebSocket.OPEN)throw Error('加密完成時 WebSocket 已關閉');socket.send(packet);if(command===28&&payload instanceof Uint8Array)payload.fill(0);log(`已送出 cmd=${command}（${packet.length} bytes encrypted frame）。`);}catch(e){clearTimeout(p.timer);if(pending===p)pending=null;reject(e);}});}
-async function runBootstrap(){const firstKey=initialKey();activeKey=firstKey;const responsePromise=request(0,new Uint8Array(64));const response=await responsePromise;if(response.code!==0)throw Error(`Bootstrap response_code=${response.code}`);if(response.body.length<66)throw Error(`Bootstrap body 長度不足：${response.body.length}`);const dv=new DataView(response.body.buffer,response.body.byteOffset,response.body.byteLength);const build=dv.getUint16(0,true);const token=response.body.slice(2,66);const newKey=response.body.slice(66);token.fill(0);response.body.fill(0);if(![16,24,32].includes(newKey.length))throw Error(`不支援的 Session AES Key 長度：${newKey.length}`);firstKey.fill(0);activeKey=newKey;$('build').textContent=String(build);$('keylen').textContent=`${newKey.length} bytes`;log(`Bootstrap 成功：outer_version=${response.outerVersion}；response_code=0；bootstrap_u16=${build}；Session AES Key=${newKey.length} bytes。Token 與 Key 未顯示。`,'ok');}
-function loginPayload(login,password,otp){
-  // Current observed login field sequence: client version, password prefix,
-  // OTP, 16-byte client ID, UTM fields, referrer cookie, affiliate site,
-  // terminal host length + fixed host, login, 160-byte password blob,
-  // session ID, and trailing compatibility U64.
-  let prefix='';let passwordBlob=new Uint8Array(160);
-  if(password.length===320){if(!/^[0-9a-fA-F]{320}$/.test(password))throw Error('密碼長度為 320 字元，但不是有效的 320 位十六進位密碼 blob。');passwordBlob=bytesFromHex(password);}
-  else prefix=Array.from(utf16Units(password,32)).map(n=>String.fromCharCode(n)).join('');
-  const passwordField=fixedUtf16(prefix,64).bytes;
-  const otpField=fixedUtf16(otp,128).bytes;
-  const campaign=fixedUtf16('',64).bytes;
-  const source=fixedUtf16('',64).bytes;
-  const affiliate=fixedUtf16('',128).bytes;
-  const terminalHost=new URL(ENDPOINT).hostname;
-  const hostField=fixedUtf16(terminalHost,256);
-  const clientId=crypto.getRandomValues(new Uint8Array(16));
-  const payload=concat(
-    u32(0),                 // client version
-    passwordField,          // first 32 UTF-16 code units
-    otpField,               // optional one-time password
-    clientId,               // 16-byte client/device id
+'use strict';
+
+const ENDPOINT = 'wss://mt5demowebterminal.ftmo.com/terminal';
+const SYMBOL = 'EURUSD';
+const PERIOD_M15 = 15;
+const PERIOD_SECONDS = 15 * 60;
+const LOOKBACK_SECONDS = 24 * 60 * 60;
+const CMD_LOGOUT = 2;
+const CMD_GET_RATES = 11;
+const CMD_LOGIN = 28;
+const CMD_LOGIN_STATUS_PUSH = 15;
+
+// This is the same obfuscated initial bootstrap key used by the previously
+// validated v3/v4 diagnostic. Do not print the decoded key or session material.
+const OBFUSCATED_KEY = '13ef13b2b76dd8:5795gdcfb2fdc1ge85bf768f54773d22fff996e3ge75g5:75';
+
+let socket = null;
+let activeAesKey = null;
+let pendingRequest = null;
+let messageChain = Promise.resolve();
+let pushCount = 0;
+let loggedIn = false;
+let running = false;
+
+const $ = (id) => document.getElementById(id);
+
+function log(message, level = '') {
+  const stamp = new Date().toISOString();
+  const line = `[${stamp}] ${message}`;
+  const box = $('log');
+  const span = document.createElement('span');
+  span.textContent = line + '\n';
+  if (level) span.className = level;
+  box.appendChild(span);
+  box.scrollTop = box.scrollHeight;
+}
+
+function setStatus(message, level = '') {
+  const el = $('status');
+  el.textContent = message;
+  el.className = 'status ' + level;
+}
+
+function hexToBytes(hex) {
+  if (hex.length % 2 !== 0 || !/^[0-9a-f]*$/i.test(hex)) throw new Error('Invalid hex key encoding');
+  const out = new Uint8Array(hex.length / 2);
+  for (let i = 0; i < out.length; i++) out[i] = parseInt(hex.slice(i * 2, i * 2 + 2), 16);
+  return out;
+}
+
+function decodeInitialKey() {
+  // Exact decoder from the previously validated v3/v4 diagnostics.
+  let hex = '';
+  for (const ch of OBFUSCATED_KEY) {
+    const cp = ch.codePointAt(0);
+    if (cp === 28) hex += '&';
+    else if (cp === 23) hex += '!';
+    else hex += String.fromCodePoint(cp - 1);
+  }
+  const bytes = hexToBytes(hex);
+  if (bytes.length !== 32) throw new Error(`Initial AES key decode produced ${bytes.length} bytes, expected 32`);
+  return bytes;
+}
+
+function u16(value) { const b = new Uint8Array(2); new DataView(b.buffer).setUint16(0, value, true); return b; }
+function u32(value) { const b = new Uint8Array(4); new DataView(b.buffer).setUint32(0, value >>> 0, true); return b; }
+function i32(value) { const b = new Uint8Array(4); new DataView(b.buffer).setInt32(0, value, true); return b; }
+function u64(value) { const b = new Uint8Array(8); new DataView(b.buffer).setBigUint64(0, BigInt(value), true); return b; }
+function concatBytes(...arrays) {
+  const total = arrays.reduce((n, a) => n + a.length, 0);
+  const out = new Uint8Array(total);
+  let offset = 0;
+  for (const a of arrays) { out.set(a, offset); offset += a.length; }
+  return out;
+}
+function randomBytes(length) { const b = new Uint8Array(length); crypto.getRandomValues(b); return b; }
+
+function fixedUtf16(text, byteLength) {
+  const out = new Uint8Array(byteLength);
+  const view = new DataView(out.buffer);
+  const maxUnits = Math.floor(byteLength / 2);
+  let units = 0;
+  for (let i = 0; i < text.length && units < maxUnits; i++, units++) {
+    view.setUint16(units * 2, text.charCodeAt(i), true);
+  }
+  return out;
+}
+
+async function importAesKey(raw) {
+  if (![16, 24, 32].includes(raw.length)) throw new Error(`Unsupported AES key length: ${raw.length}`);
+  return crypto.subtle.importKey('raw', raw, { name: 'AES-CBC' }, false, ['encrypt', 'decrypt']);
+}
+
+async function encryptFrame(command, payload) {
+  const inner = concatBytes(randomBytes(2), u16(command), payload);
+  const encrypted = new Uint8Array(await crypto.subtle.encrypt(
+    { name: 'AES-CBC', iv: new Uint8Array(16) }, activeAesKey, inner
+  ));
+  // FTMO accepted client outer version 1 in the verified Bootstrap v3/v4 runs;
+  // server replies were observed with outer version 0.
+  return concatBytes(u32(encrypted.length), u32(1), encrypted);
+}
+
+async function decryptFrame(frame) {
+  const bytes = frame instanceof Uint8Array ? frame : new Uint8Array(frame);
+  if (bytes.length < 24) throw new Error(`Response frame too short: ${bytes.length} bytes`);
+  const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+  const declared = view.getUint32(0, true);
+  const outerVersion = view.getUint32(4, true);
+  if (declared !== bytes.length - 8) throw new Error(`Outer length mismatch: declared=${declared}, actual=${bytes.length - 8}`);
+  const ciphertext = bytes.slice(8);
+  const plain = new Uint8Array(await crypto.subtle.decrypt(
+    { name: 'AES-CBC', iv: new Uint8Array(16) }, activeAesKey, ciphertext
+  ));
+  if (plain.length < 5) throw new Error('Decrypted payload too short');
+  const pview = new DataView(plain.buffer, plain.byteOffset, plain.byteLength);
+  const command = pview.getUint16(2, true);
+  const responseCode = pview.getUint8(4);
+  return { outerVersion, command, responseCode, body: plain.slice(5), plaintextLength: plain.length };
+}
+
+function connectWebSocket() {
+  return new Promise((resolve, reject) => {
+    log(`Connecting to ${ENDPOINT}`);
+    socket = new WebSocket(ENDPOINT);
+    socket.binaryType = 'arraybuffer';
+    let settled = false;
+
+    socket.onopen = () => {
+      if (settled) return;
+      settled = true;
+      log('WebSocket handshake completed.');
+      resolve();
+    };
+    socket.onerror = () => {
+      const err = new Error('WebSocket transport error. Check endpoint, network, and browser console.');
+      if (!settled) { settled = true; reject(err); }
+      else log(err.message, 'err');
+    };
+    socket.onclose = (event) => {
+      log(`WebSocket closed: code=${event.code}, clean=${event.wasClean}, reason=${event.reason || '(none)'}`,
+          event.wasClean ? '' : 'warn');
+      if (pendingRequest) {
+        clearTimeout(pendingRequest.timer);
+        pendingRequest.reject(new Error(`WebSocket closed while waiting for command ${pendingRequest.command}`));
+        pendingRequest = null;
+      }
+      if (!settled) { settled = true; reject(new Error(`WebSocket closed before open (code ${event.code})`)); }
+    };
+    socket.onmessage = (event) => {
+      messageChain = messageChain.then(async () => {
+        let frameBytes;
+        if (event.data instanceof ArrayBuffer) frameBytes = new Uint8Array(event.data);
+        else if (event.data instanceof Blob) frameBytes = new Uint8Array(await event.data.arrayBuffer());
+        else {
+          log('Received non-binary WebSocket message; ignored.', 'warn');
+          return;
+        }
+        const result = await decryptFrame(frameBytes);
+        if (result.command === CMD_LOGIN_STATUS_PUSH) {
+          pushCount++;
+          log(`Login/session status push observed: response_code=${result.responseCode}, body_length=${result.body.length} bytes. Payload intentionally not displayed.`);
+          return;
+        }
+        if (pendingRequest && result.command === pendingRequest.command) {
+          const p = pendingRequest;
+          pendingRequest = null;
+          clearTimeout(p.timer);
+          p.resolve(result);
+          return;
+        }
+        log(`Unmatched server message: command=${result.command}, response_code=${result.responseCode}, body_length=${result.body.length} bytes. Payload not displayed.`, 'warn');
+      }).catch((err) => {
+        log(`Frame processing error: ${err.message}`, 'err');
+        if (pendingRequest) {
+          const p = pendingRequest;
+          pendingRequest = null;
+          clearTimeout(p.timer);
+          p.reject(err);
+        }
+      });
+    };
+  });
+}
+
+async function request(command, payload, label, timeoutMs = 12000) {
+  if (!socket || socket.readyState !== WebSocket.OPEN) throw new Error('WebSocket is not open');
+  if (pendingRequest) throw new Error('Another MT5 command is still pending');
+  const frame = await encryptFrame(command, payload);
+  const resultPromise = new Promise((resolve, reject) => {
+    const timer = setTimeout(() => {
+      if (pendingRequest && pendingRequest.command === command) {
+        pendingRequest = null;
+        reject(new Error(`Timeout waiting for ${label} (command ${command})`));
+      }
+    }, timeoutMs);
+    pendingRequest = { command, resolve, reject, timer };
+  });
+  socket.send(frame);
+  log(`Sent ${label}: encrypted frame ${frame.length} bytes.`);
+  const result = await resultPromise;
+  log(`${label} response: command=${result.command}, outer_version=${result.outerVersion}, response_code=${result.responseCode}, body_length=${result.body.length} bytes.`);
+  return result;
+}
+
+async function doBootstrap() {
+  const initialRaw = decodeInitialKey();
+  activeAesKey = await importAesKey(initialRaw);
+  initialRaw.fill(0);
+  log('Initial bootstrap AES key imported (32 bytes).');
+  const result = await request(0, new Uint8Array(64), 'cmd=0 Bootstrap');
+  if (result.responseCode !== 0) throw new Error(`Bootstrap rejected: response_code=${result.responseCode}`);
+  if (result.body.length < 66) throw new Error(`Bootstrap body too short: ${result.body.length} bytes`);
+  const bootstrapToken = result.body.slice(2, 66);
+  const sessionKeyRaw = result.body.slice(66);
+  if (bootstrapToken.length !== 64) throw new Error('Bootstrap token length mismatch');
+  activeAesKey = await importAesKey(sessionKeyRaw);
+  bootstrapToken.fill(0);
+  sessionKeyRaw.fill(0);
+  result.body.fill(0);
+  log('Bootstrap verified: response_code=0; Session AES key imported; secret values cleared from working buffers.');
+}
+
+function buildLoginPayload(loginId, password, otp) {
+  const clientId = randomBytes(16);
+  let passwordPrefix = '';
+  let passwordBlob = new Uint8Array(160);
+  if (password.length === 320) {
+    if (!/^[0-9a-fA-F]{320}$/.test(password)) {
+      throw new Error('Password is 320 characters but is not a valid 320-character hexadecimal blob.');
+    }
+    passwordBlob = hexToBytes(password);
+  } else {
+    // Match the validated v4 behavior: first 32 UTF-16 code units in prefix field.
+    passwordPrefix = password.slice(0, 32);
+  }
+  const passwordField = fixedUtf16(passwordPrefix, 64);
+  const otpField = fixedUtf16(otp, 128);
+  const campaign = fixedUtf16('', 64);
+  const source = fixedUtf16('', 64);
+  const affiliate = fixedUtf16('', 128);
+  const host = 'mt5demowebterminal.ftmo.com';
+  const terminalHost = fixedUtf16(host, 256);
+  const payload = concatBytes(
+    u32(0),
+    passwordField,
+    otpField,
+    clientId,
     campaign,
     source,
-    u64(0),                 // referrer cookie id
+    u64(0),
     affiliate,
-    u32(hostField.units),   // UTF-16 code-unit length
-    hostField.bytes,        // terminal host
-    u64(login),
-    passwordBlob,           // 160-byte extended password blob
-    u64(0),                 // session id (new login)
-    u64(0)                  // trailing compatibility field
+    u32(host.length),
+    terminalHost,
+    u64(loginId),
+    passwordBlob,
+    u64(0),
+    u64(0)
   );
-  passwordField.fill(0);otpField.fill(0);clientId.fill(0);passwordBlob.fill(0);
+  clientId.fill(0);
+  passwordField.fill(0);
+  otpField.fill(0);
+  passwordBlob.fill(0);
   return payload;
 }
-async function run(){if(running)return;running=true;$('run').disabled=true;$('log').replaceChildren();lines.length=0;$('build').textContent='—';$('keylen').textContent='—';status('準備中…');let payload=null;let localPassword='';let localOtp='';try{
-  if(!isSecureContext||!crypto?.subtle)throw Error('需要 HTTPS Secure Context 與 Web Crypto。');
-  const loginText=$('login').value.trim();if(!/^\d+$/.test(loginText))throw Error('MT5 Login ID 必須是正整數。');const login=BigInt(loginText);if(login<=0n||login>18446744073709551615n)throw Error('MT5 Login ID 超出 uint64 範圍。');
-  localPassword=$('password').value;localOtp=$('otp').value;if(!localPassword)throw Error('請輸入唯讀密碼。');
-  log(`Login diagnostic v4 started. Origin=${location.origin}`);log(`Endpoint=${ENDPOINT}`);log('本測試只會執行 Bootstrap、唯讀登入及登出，不會送出交易命令。');
-  status('正在連接 FTMO WebSocket…');await connect();
-  status('正在執行 Bootstrap…');await runBootstrap();
-  log('正在建立 cmd=28 登入 payload（不輸出欄位內容）。');
-  payload=loginPayload(login,localPassword,localOtp);$('password').value='';$('otp').value='';localPassword='';localOtp='';
-  log(`cmd=28 login payload prepared (${payload.length} bytes).`);
-  status('正在驗證 FTMO 唯讀帳戶…');
-  const result=await request(28,payload);payload.fill(0);payload=null;
-  log(`Login response：command=${result.command}, outer_version=${result.outerVersion}, response_code=${result.code}, body_length=${result.body.length} bytes。`);
-  if(result.code!==0){result.body.fill(0);throw Error(`FTMO 回傳非零登入 response_code=${result.code}。目前文件未提供此代碼的可靠語意對照；請勿直接推斷為密碼錯誤。`);}
-  loginCommandAccepted=true;
-  const loginBodyLength=result.body.length;
+
+function validateLoginResponse(result) {
+  if (result.responseCode !== 0) throw new Error(`FTMO login rejected: response_code=${result.responseCode}`);
+  // A zero login response may have created a server-side session. Mark it for
+  // best-effort logout even if the body schema check below fails.
+  loggedIn = true;
+  // Current pymt5 LOGIN_RESPONSE_SCHEMA: 160-byte auth token + uint64 session ID.
+  if (result.body.length !== 168) {
+    throw new Error(`Login command returned response_code=0 but body_length=${result.body.length}; expected 168 by the current documented schema. Not treating this as fully validated login.`);
+  }
+  const authToken = result.body.slice(0, 160);
+  const view = new DataView(result.body.buffer, result.body.byteOffset, result.body.byteLength);
+  const sessionId = view.getBigUint64(160, true);
+  const tokenHasNonZeroByte = authToken.some((b) => b !== 0);
+  const sessionIdPresent = sessionId !== 0n;
+  authToken.fill(0);
   result.body.fill(0);
-  if(loginBodyLength===0){log('cmd=28 response_code=0，但登入 response body 為空；命令層回應成功，登入結果結構尚未驗證。','warn');}
-  else{log(`cmd=28 response_code=0，收到 ${loginBodyLength}-byte 登入 response body。這是正向的命令層回應；本診斷尚未解析 Login Token / Session 欄位，因此不將它標示為完整登入驗證。`,'ok');}
-  status('cmd=28 回應 code=0；正在嘗試 cmd=2 登出以結束測試 Session。','warn');
-  try{const logout=await request(2);log(`Logout response：command=${logout.command}, outer_version=${logout.outerVersion}, response_code=${logout.code}, body_length=${logout.body.length} bytes。`,logout.code===0?'ok':'warn');logout.body.fill(0);if(logout.code===0)log('cmd=2 登出命令回應 code=0。','ok');else log('cmd=2 登出回應非零；關閉 WebSocket。','warn');}catch(e){log(`登出未取得確認：${e.message}`,'warn');}
-  status(loginBodyLength>0?'cmd=28 收到成功狀態及非空回應；登入結果結構尚待驗證。':'cmd=28 回傳 code=0，但回應內容不足；需要檢查伺服器相容性。','warn');
- }catch(e){log(`測試失敗：${e.message}`,'bad');status(`測試未完成：${e.message}`,'bad');if(loginCommandAccepted){try{const logout=await request(2);log(`Best-effort cmd=2 logout response_code=${logout.code}。`,logout.code===0?'ok':'warn');logout.body.fill(0);}catch{log('未取得登出確認；將關閉此測試連線。','warn');}}}
- finally{if(payload)payload.fill(0);payload=null;localPassword='';localOtp='';$('password').value='';$('otp').value='';if(activeKey){activeKey.fill(0);activeKey=null;}if(socket){try{socket.close(1000,'diagnostic finished');}catch{}socket=null;}pending=null;loginCommandAccepted=false;running=false;$('run').disabled=false;}
+  log(`Login response schema parsed: auth_token_length=160; token_has_nonzero_bytes=${tokenHasNonZeroByte}; session_id_nonzero=${sessionIdPresent}. Token and session ID values were not displayed.`);
+  if (!tokenHasNonZeroByte || !sessionIdPresent) {
+    log('Login response schema parsed, but token or session ID is all-zero; continuing only to test whether a read-only rates request is accepted.', 'warn');
+  }
+  loggedIn = true;
 }
-function copyLog(){const report=[`FTMO MT5 Read-only Login Diagnostic v4`,`Page origin: ${location.origin}`,`Endpoint: ${ENDPOINT}`,`Generated UTC: ${nowUTC()}`,...lines].join('\n');if(navigator.clipboard?.writeText){navigator.clipboard.writeText(report).then(()=>status('診斷紀錄已複製。','ok')).catch(()=>status('瀏覽器未允許剪貼簿存取，請手動複製紀錄。','warn'));}else{status('瀏覽器未提供剪貼簿 API，請手動複製紀錄。','warn');}}
-$('run').addEventListener('click',run);$('copy').addEventListener('click',copyLog);$('clear').addEventListener('click',()=>{$('login').value='';$('password').value='';$('otp').value='';$('log').replaceChildren();lines.length=0;$('build').textContent='—';$('keylen').textContent='—';status('已清除輸入與紀錄。');log('輸入欄位與診斷紀錄已清除。');});
-log('FTMO Read-only Login Diagnostic v4 已載入。');
-})();
+
+function buildRatesPayload(startTs, endTs) {
+  return concatBytes(
+    fixedUtf16(SYMBOL, 64),
+    u16(PERIOD_M15),
+    i32(startTs),
+    i32(endTs)
+  );
+}
+
+function parseRateBars(body) {
+  if (body.length === 0) return { format: 'empty', bars: [] };
+  const standard = body.length % 48 === 0;
+  const extended = body.length % 56 === 0;
+  if (standard && extended) {
+    throw new Error(`Rates body length ${body.length} is divisible by both 48 and 56; format is ambiguous, refusing to guess.`);
+  }
+  if (!standard && !extended) {
+    throw new Error(`Rates body length ${body.length} is neither a multiple of 48 nor 56 bytes.`);
+  }
+  const recordSize = standard ? 48 : 56;
+  const format = standard ? 'standard-48-byte' : 'extended-56-byte';
+  const bars = [];
+  const view = new DataView(body.buffer, body.byteOffset, body.byteLength);
+  for (let offset = 0; offset < body.length; offset += recordSize) {
+    const time = view.getInt32(offset, true);
+    const open = view.getFloat64(offset + 4, true);
+    const high = view.getFloat64(offset + 12, true);
+    const low = view.getFloat64(offset + 20, true);
+    const close = view.getFloat64(offset + 28, true);
+    const tickVolume = view.getBigInt64(offset + 36, true).toString();
+    const spread = view.getInt32(offset + 44, true);
+    const realVolume = standard ? '' : view.getBigInt64(offset + 48, true).toString();
+    if (!Number.isFinite(open) || !Number.isFinite(high) || !Number.isFinite(low) || !Number.isFinite(close)) {
+      throw new Error(`Invalid OHLC value in rate record at byte offset ${offset}`);
+    }
+    bars.push({ time, open, high, low, close, tickVolume, spread, realVolume });
+  }
+  return { format, bars };
+}
+
+function csvEscape(value) {
+  const text = String(value ?? '');
+  return /[",\r\n]/.test(text) ? '"' + text.replace(/"/g, '""') + '"' : text;
+}
+
+function makeCsv(bars, endTs) {
+  const headers = [
+    'symbol', 'timeframe',
+    'bar_open_time_utc_iso8601',
+    'bar_open_time_utc_unix_seconds',
+    'timestamp_timezone',
+    'open', 'high', 'low', 'close',
+    'tick_volume', 'spread_points', 'real_volume', 'is_closed'
+  ];
+  const lines = [headers.join(',')];
+  for (const bar of bars) {
+    const iso = new Date(bar.time * 1000).toISOString();
+    const isClosed = (bar.time + PERIOD_SECONDS) <= endTs;
+    const row = [
+      SYMBOL, 'M15', iso, bar.time, 'UTC',
+      bar.open, bar.high, bar.low, bar.close,
+      bar.tickVolume, bar.spread, bar.realVolume, String(isClosed)
+    ];
+    lines.push(row.map(csvEscape).join(','));
+  }
+  return '\uFEFF' + lines.join('\r\n') + '\r\n';
+}
+
+function downloadCsv(csvText) {
+  const blob = new Blob([csvText], { type: 'text/csv;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'EURUSD_M15_last_24h_UTC.csv';
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1500);
+}
+
+function renderPreview(bars) {
+  const body = $('preview');
+  body.replaceChildren();
+  const last = bars.slice(-5).reverse();
+  if (!last.length) {
+    const tr = document.createElement('tr');
+    const td = document.createElement('td');
+    td.colSpan = 5; td.textContent = '查詢成功，但該範圍沒有 K 線資料。'; td.style.textAlign = 'left';
+    tr.appendChild(td); body.appendChild(tr); return;
+  }
+  for (const bar of last) {
+    const tr = document.createElement('tr');
+    const values = [new Date(bar.time * 1000).toISOString(), bar.open, bar.high, bar.low, bar.close];
+    for (const value of values) {
+      const td = document.createElement('td');
+      td.textContent = String(value);
+      tr.appendChild(td);
+    }
+    body.appendChild(tr);
+  }
+}
+
+async function bestEffortLogout() {
+  if (!loggedIn || !socket || socket.readyState !== WebSocket.OPEN || pendingRequest) return;
+  try {
+    const result = await request(CMD_LOGOUT, new Uint8Array(0), 'cmd=2 Logout', 5000);
+    if (result.responseCode === 0) log('Logout acknowledged by server.');
+    else log(`Logout response_code=${result.responseCode}.`, 'warn');
+  } catch (err) {
+    log(`Logout attempt did not complete: ${err.message}`, 'warn');
+  } finally {
+    loggedIn = false;
+  }
+}
+
+async function run() {
+  if (running) return;
+  const loginText = $('login').value.trim();
+  let password = $('password').value;
+  let otp = $('otp').value;
+  if (!isSecureContext || !crypto || !crypto.subtle) { setStatus('此頁面需要 HTTPS Secure Context 和 Web Crypto；請使用 GitHub Pages HTTPS 網址。', 'err'); return; }
+  if (!/^\d+$/.test(loginText)) { setStatus('請輸入有效的 MT5 Login ID。', 'err'); return; }
+  if (!password) { setStatus('請輸入 FTMO Investor / Read-only Password。', 'err'); return; }
+  const loginId = Number(loginText);
+  if (!Number.isSafeInteger(loginId) || loginId <= 0) { setStatus('MT5 Login ID 超出可安全處理的數值範圍。', 'err'); return; }
+
+  running = true;
+  $('run').disabled = true;
+  $('metric-bars').textContent = '—';
+  $('metric-format').textContent = '—';
+  $('metric-range').textContent = '24h';
+  $('preview').innerHTML = '<tr><td colspan="5" style="text-align:left;color:#9eabc1">正在取得資料…</td></tr>';
+  setStatus('連線與下載進行中…');
+  pushCount = 0;
+  let loginPayloadBuffer = null;
+
+  try {
+    const endTs = Math.floor(Date.now() / 1000);
+    const startTs = endTs - LOOKBACK_SECONDS;
+    log(`Request range: ${new Date(startTs * 1000).toISOString()} to ${new Date(endTs * 1000).toISOString()} (UTC).`);
+    await connectWebSocket();
+    await doBootstrap();
+
+    log('Preparing read-only login command (cmd=28).');
+    loginPayloadBuffer = buildLoginPayload(loginId, password, otp);
+    if (loginPayloadBuffer.length !== 920) throw new Error(`Login payload size mismatch: ${loginPayloadBuffer.length} bytes, expected 920`);
+    // Clear visible and local credential references immediately after constructing the request.
+    $('password').value = '';
+    $('otp').value = '';
+    password = '';
+    otp = '';
+    const loginResult = await request(CMD_LOGIN, loginPayloadBuffer, 'cmd=28 Read-only Login', 15000);
+    loginPayloadBuffer.fill(0);
+    loginPayloadBuffer = null;
+    validateLoginResponse(loginResult);
+    log('Read-only login response schema validated. No order/trade command was sent.', 'ok');
+
+    // Allow any asynchronous login-status notification to be handled before history request.
+    await new Promise((resolve) => setTimeout(resolve, 180));
+
+    const ratesPayload = buildRatesPayload(startTs, endTs);
+    log(`Requesting ${SYMBOL} M15 rates for the last 24 hours (UTC).`);
+    const ratesResult = await request(CMD_GET_RATES, ratesPayload, 'cmd=11 Get Rates', 20000);
+    ratesPayload.fill(0);
+    if (ratesResult.responseCode !== 0) throw new Error(`Historical rates request rejected: response_code=${ratesResult.responseCode}`);
+
+    const parsed = parseRateBars(ratesResult.body);
+    ratesResult.body.fill(0);
+    const dedup = new Map();
+    for (const bar of parsed.bars) {
+      if (bar.time >= startTs && bar.time <= endTs) dedup.set(bar.time, bar);
+    }
+    const bars = [...dedup.values()].sort((a, b) => a.time - b.time);
+
+    $('metric-bars').textContent = String(bars.length);
+    $('metric-format').textContent = parsed.format === 'empty' ? 'empty' : parsed.format;
+    renderPreview(bars);
+    if (bars.length) {
+      log(`Parsed ${bars.length} M15 bars using ${parsed.format}. Earliest=${new Date(bars[0].time * 1000).toISOString()}, latest=${new Date(bars[bars.length - 1].time * 1000).toISOString()}.`, 'ok');
+    } else {
+      log('Rates command succeeded but returned no bars in the requested UTC range.', 'warn');
+    }
+
+    const csv = makeCsv(bars, endTs);
+    downloadCsv(csv);
+    log('CSV download started: EURUSD_M15_last_24h_UTC.csv. Time columns are explicitly UTC.', 'ok');
+    setStatus(`完成：取得 ${bars.length} 根 EURUSD M15 K 線，CSV 已開始下載。`, 'ok');
+  } catch (err) {
+    log(`ERROR: ${err && err.message ? err.message : String(err)}`, 'err');
+    setStatus(`執行失敗：${err && err.message ? err.message : String(err)}`, 'err');
+  } finally {
+    if (loginPayloadBuffer) loginPayloadBuffer.fill(0);
+    loginPayloadBuffer = null;
+    password = '';
+    otp = '';
+    $('password').value = '';
+    $('otp').value = '';
+    await bestEffortLogout();
+    if (socket && socket.readyState === WebSocket.OPEN) socket.close(1000, 'Client operation complete');
+    if (activeAesKey) activeAesKey = null;
+    pendingRequest = null;
+    running = false;
+    $('run').disabled = false;
+  }
+}
+
+$('run').addEventListener('click', run);
+$('clear').addEventListener('click', () => {
+  $('log').textContent = '紀錄已清除。時間格式為 UTC。';
+  setStatus('尚未執行。');
+  $('metric-bars').textContent = '—';
+  $('metric-format').textContent = '—';
+  $('preview').innerHTML = '<tr><td colspan="5" style="text-align:left;color:#9eabc1">尚無資料</td></tr>';
+});
+
+log(`Page loaded. Origin=${location.origin}; endpoint=${ENDPOINT}.`);
+log('Mode: browser-native WebSocket + Web Crypto; no credential persistence.');
 </script>
 </body>
 </html>

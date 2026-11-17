@@ -1,5 +1,11 @@
 # FTMO MT5 歷史行情下載器 v8
 
+## 線上使用網址
+
+**GitHub Pages：** <https://li-kuan-gi.github.io/ftmo-ws-origin-test/>
+
+請使用 HTTPS 網址開啟工具。登入時只輸入 FTMO MT5 Login ID 與 Investor／Read-only Password；不要將帳密、OTP、Session Token 或 Session AES Key 寫入 GitHub repository。
+
 這是一個可部署在 GitHub Pages 的瀏覽器版 FTMO MT5 歷史行情下載器。使用瀏覽器原生 WebSocket 與 Web Crypto 連線，不需要安裝 Python、不需要本機伺服器，也不需要啟動 MT5 Desktop。
 
 程式只使用 FTMO MT5 Investor／Read-only 密碼登入，只查詢歷史行情，不會送出下單或交易命令。

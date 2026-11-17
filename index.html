@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="description" content="FTMO MT5 browser-based historical candle downloader. Select symbol, timeframe and UTC date range; export OHLC CSV.">
-<title>FTMO MT5 Historical Data Downloader v7</title>
+<title>FTMO MT5 歷史行情下載器 v8</title>
 <style>
 :root{color-scheme:dark;--bg:#0a1020;--panel:#121b2d;--panel2:#0b1425;--muted:#9aa9c0;--text:#edf3ff;--line:#2a3a56;--accent:#7eafff;--good:#43d49a;--warn:#ffd16c;--bad:#ff8088;--input:#081222}
 *{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 20% 0%,#172744 0%,transparent 42%),linear-gradient(155deg,#0e172b,var(--bg) 60%);color:var(--text);font:15px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif}
@@ -17,8 +17,8 @@ main{max-width:1050px;margin:30px auto;padding:0 18px 56px}.top{display:flex;ali
 <main>
   <header class="top">
     <div>
-      <h1>FTMO MT5 歷史 K 線下載器 v7</h1>
-      <p class="subtitle">選擇商品、K 線週期與 UTC 時間區間，直接由瀏覽器匯出 OHLC CSV。</p>
+      <h1>FTMO MT5 歷史 K 線下載器 v8</h1>
+      <p class="subtitle">登入一次，連續下載不同商品與週期；閒置 15 分鐘自動登出。所有時間均為 UTC。</p>
     </div>
     <div class="pill"><span class="dot"></span> Browser-only · No local server</div>
   </header>
@@ -37,8 +37,19 @@ main{max-width:1050px;margin:30px auto;padding:0 18px 56px}.top{display:flex;ali
       <div class="field wide">
         <label for="otp">OTP（只有帳戶要求時才填）</label>
         <input id="otp" type="password" autocomplete="off" placeholder="選填；不需要時留空" spellcheck="false">
-        <span class="hint">帳密只在本次頁面操作時使用；不會寫入 GitHub、localStorage 或診斷日誌。此頁只發送讀取行情及登出命令，不會下單。</span>
+        <span class="hint">帳密只在登入時使用；不會寫入 GitHub、localStorage 或診斷日誌。Session Token 與 AES Key 僅保留在目前頁面的記憶體中。此頁只發送唯讀登入、歷史行情查詢及登出命令，不會下單。</span>
       </div>
+    </div>
+    <div class="actions">
+      <button id="loginBtn" type="button">登入 FTMO</button>
+      <button id="logoutBtn" class="secondary" type="button" disabled>登出</button>
+    </div>
+    <div class="status" id="sessionStatus" style="margin-top:14px">目前未登入。請先登入 FTMO 唯讀帳戶。</div>
+    <div class="meta" style="margin-top:10px">
+      <div class="metric"><strong id="idleRemaining">—</strong><span>閒置登出倒數</span></div>
+      <div class="metric"><strong id="sessionConnection">未連線</strong><span>WebSocket 狀態</span></div>
+      <div class="metric"><strong id="sessionMode">—</strong><span>登入狀態</span></div>
+      <div class="metric"><strong>15 分鐘</strong><span>閒置登出設定</span></div>
     </div>
   </section>
 
@@ -105,7 +116,7 @@ main{max-width:1050px;margin:30px auto;padding:0 18px 56px}.top{display:flex;ali
     </div>
     <p class="note">時間欄位一律以 UTC 解讀，不使用裝置的本地時區。請將欄位中的數字視為 UTC 時間；CSV 會使用 ISO 8601 的 <code>Z</code> 標記 UTC。時間範圍上限為預估 100,000 根 K 線，以避免瀏覽器記憶體及單次請求過大。</p>
     <div class="actions">
-      <button id="run">登入並下載 CSV</button>
+      <button id="run" disabled>下載 CSV</button>
       <button id="clear" class="secondary" type="button">清除診斷紀錄</button>
     </div>
   </section>
@@ -142,7 +153,7 @@ main{max-width:1050px;margin:30px auto;padding:0 18px 56px}.top{display:flex;ali
   <section class="card">
     <h2 class="section-title">CSV 欄位與時間定義</h2>
     <p class="note">CSV 包含商品、週期、K 線開盤時間及收盤時間（UTC ISO 8601，結尾 Z）、Unix 秒數、OHLC、Tick Volume、Spread、Real Volume（伺服器有提供時）及 is_closed。時間戳代表每根 K 線的開盤時間。</p>
-    <p class="note">Tick Volume 是該週期的報價變動／Tick 數量，不等同於集中交易所的實際成交量。非交易時段不一定會有連續 K 線。每次查詢結束後會送出登出命令。</p>
+    <p class="note">Tick Volume 是該週期的報價變動／Tick 數量，不等同於集中交易所的實際成交量。非交易時段不一定會有連續 K 線。登入後可連續查詢多次；只有手動登出或閒置 15 分鐘才會送出登出命令。頁面關閉時會盡力關閉 WebSocket，但無法保證瀏覽器能完成非同步的 MT5 cmd=2。</p>
   </section>
 </main>
 
@@ -155,6 +166,7 @@ const CMD_GET_RATES = 11;
 const CMD_LOGIN = 28;
 const CMD_LOGIN_STATUS_PUSH = 15;
 const MAX_ESTIMATED_BARS = 100000;
+const IDLE_TIMEOUT_MS = 15 * 60 * 1000;
 const OBFUSCATED_KEY = '13ef13b2b76dd8:5795gdcfb2fdc1ge85bf768f54773d22fff996e3ge75g5:75';
 
 let socket = null;
@@ -163,6 +175,8 @@ let pendingRequest = null;
 let messageChain = Promise.resolve();
 let loggedIn = false;
 let running = false;
+let idleTimer = null;
+let lastActivityAt = 0;
 
 const $ = (id) => document.getElementById(id);
 
@@ -269,20 +283,39 @@ async function decryptFrame(frame) {
 function connectWebSocket() {
   return new Promise((resolve, reject) => {
     log(`Connecting to ${ENDPOINT}`);
-    socket = new WebSocket(ENDPOINT);
-    socket.binaryType = 'arraybuffer';
+    const ws = new WebSocket(ENDPOINT);
+    socket = ws;
+    ws.binaryType = 'arraybuffer';
     let settled = false;
-    socket.onopen = () => { if (!settled) { settled = true; log('WebSocket handshake completed.'); resolve(); } };
-    socket.onerror = () => {
+    ws.onopen = () => {
+      if (!settled) { settled = true; log('WebSocket handshake completed.'); resolve(); }
+      $('sessionConnection').textContent = '已連線';
+    };
+    ws.onerror = () => {
       const err = new Error('WebSocket transport error. Check endpoint, network, and browser console.');
-      if (!settled) { settled = true; reject(err); } else log(err.message, 'err');
+      if (!settled) { settled = true; reject(err); }
+      else log(err.message, 'err');
     };
-    socket.onclose = (event) => {
+    ws.onclose = (event) => {
       log(`WebSocket closed: code=${event.code}, clean=${event.wasClean}, reason=${event.reason || '(none)'}`, event.wasClean ? '' : 'warn');
-      if (pendingRequest) { clearTimeout(pendingRequest.timer); pendingRequest.reject(new Error(`WebSocket closed while waiting for command ${pendingRequest.command}`)); pendingRequest = null; }
+      if (pendingRequest) {
+        clearTimeout(pendingRequest.timer);
+        pendingRequest.reject(new Error(`WebSocket closed while waiting for command ${pendingRequest.command}`));
+        pendingRequest = null;
+      }
       if (!settled) { settled = true; reject(new Error(`WebSocket closed before open (code ${event.code})`)); }
+      if (socket === ws) {
+        socket = null;
+        activeAesKey = null;
+        loggedIn = false;
+        clearIdleTimer();
+        $('sessionConnection').textContent = '已中斷';
+        updateSessionControls();
+        setSessionStatus('FTMO WebSocket 已中斷。請重新輸入唯讀密碼並登入。', 'warn');
+        if (!ws.expectedClose) setStatus('FTMO 連線已中斷；目前工作階段失效，請重新登入。', 'warn');
+      }
     };
-    socket.onmessage = (event) => {
+    ws.onmessage = (event) => {
       messageChain = messageChain.then(async () => {
         let frameBytes;
         if (event.data instanceof ArrayBuffer) frameBytes = new Uint8Array(event.data);
@@ -365,7 +398,6 @@ function buildLoginPayload(loginId, password, otp) {
 
 function validateLoginResponse(result) {
   if (result.responseCode !== 0) throw new Error(`FTMO login rejected: response_code=${result.responseCode}`);
-  loggedIn = true;
   if (result.body.length !== 168) throw new Error(`Login response body_length=${result.body.length}; expected 168. Login schema not validated.`);
   const authToken = result.body.slice(0, 160);
   const view = new DataView(result.body.buffer, result.body.byteOffset, result.body.byteLength);
@@ -374,6 +406,7 @@ function validateLoginResponse(result) {
   const sessionPresent = sessionId !== 0n;
   authToken.fill(0); result.body.fill(0);
   if (!tokenPresent || !sessionPresent) throw new Error('Login response schema parsed but token or session ID is empty.');
+  loggedIn = true;
   log('Read-only login schema validated: 160-byte auth token and nonzero session ID. Values not displayed.', 'ok');
 }
 
@@ -532,6 +565,61 @@ function renderPreview(bars, timeframe, endTs) {
   }
 }
 
+function setSessionStatus(message, level = '') {
+  $('sessionStatus').textContent = message;
+  $('sessionStatus').className = 'status ' + level;
+}
+
+function updateSessionControls() {
+  $('loginBtn').disabled = running || loggedIn;
+  $('logoutBtn').disabled = running || !loggedIn;
+  $('run').disabled = running || !loggedIn;
+  $('login').disabled = loggedIn || running;
+  $('password').disabled = loggedIn || running;
+  $('otp').disabled = loggedIn || running;
+  $('sessionMode').textContent = loggedIn ? '已登入' : '未登入';
+  if (!socket || socket.readyState !== WebSocket.OPEN) {
+    $('sessionConnection').textContent = '未連線';
+  } else {
+    $('sessionConnection').textContent = '已連線';
+  }
+  if (!loggedIn) $('idleRemaining').textContent = '—';
+}
+
+function clearIdleTimer() {
+  if (idleTimer !== null) clearTimeout(idleTimer);
+  idleTimer = null;
+}
+
+function formatRemaining(ms) {
+  const seconds = Math.max(0, Math.ceil(ms / 1000));
+  const minutes = Math.floor(seconds / 60);
+  return `${String(minutes).padStart(2, '0')}:${String(seconds % 60).padStart(2, '0')}`;
+}
+
+function scheduleIdleTimer() {
+  clearIdleTimer();
+  if (!loggedIn || running) {
+    $('idleRemaining').textContent = running && loggedIn ? '查詢中' : '—';
+    return;
+  }
+  const remaining = IDLE_TIMEOUT_MS - (Date.now() - lastActivityAt);
+  if (remaining <= 0) {
+    $('idleRemaining').textContent = '00:00';
+    log('15 分鐘未操作，開始自動登出。', 'warn');
+    logoutSession('閒置 15 分鐘自動登出');
+    return;
+  }
+  $('idleRemaining').textContent = formatRemaining(remaining);
+  idleTimer = setTimeout(scheduleIdleTimer, Math.min(1000, remaining));
+}
+
+function recordUserActivity() {
+  if (!loggedIn || running) return;
+  lastActivityAt = Date.now();
+  scheduleIdleTimer();
+}
+
 async function bestEffortLogout() {
   if (!loggedIn || !socket || socket.readyState !== WebSocket.OPEN || pendingRequest) return;
   try {
@@ -539,23 +627,120 @@ async function bestEffortLogout() {
     if (result.responseCode === 0) log('Logout acknowledged by server.', 'ok');
     else log(`Logout response_code=${result.responseCode}.`, 'warn');
     result.body.fill(0);
-  } catch (err) { log(`Logout attempt did not complete: ${err.message}`, 'warn'); }
-  finally { loggedIn = false; }
+  } catch (err) {
+    log(`Logout attempt did not complete: ${err.message}`, 'warn');
+  } finally {
+    loggedIn = false;
+  }
 }
 
-async function run() {
-  if (running) return;
+function closeSessionTransport(reason = 'Client closed session') {
+  const ws = socket;
+  socket = null;
+  activeAesKey = null;
+  loggedIn = false;
+  clearIdleTimer();
+  if (ws && (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING)) {
+    ws.expectedClose = true;
+    try { ws.close(1000, reason.slice(0, 120)); } catch (err) { log(`WebSocket close error: ${err.message}`, 'warn'); }
+  }
+  $('sessionConnection').textContent = '未連線';
+  updateSessionControls();
+}
+
+async function loginSession() {
+  if (running || loggedIn) return;
   let password = $('password').value;
   let otp = $('otp').value;
   let loginPayloadBuffer = null;
-  let ratesPayload = null;
-  if (!isSecureContext || !crypto || !crypto.subtle) { setStatus('此頁面需要 HTTPS Secure Context 和 Web Crypto；請使用 GitHub Pages HTTPS 網址。', 'err'); return; }
+  if (!isSecureContext || !crypto || !crypto.subtle) {
+    setStatus('此頁面需要 HTTPS Secure Context 和 Web Crypto；請使用 GitHub Pages HTTPS 網址。', 'err');
+    return;
+  }
   const loginText = $('login').value.trim();
   if (!/^\d+$/.test(loginText)) { setStatus('請輸入有效的 MT5 Login ID。', 'err'); return; }
   if (!password) { setStatus('請輸入 FTMO Investor / Read-only Password。', 'err'); return; }
   const loginId = Number(loginText);
   if (!Number.isSafeInteger(loginId) || loginId <= 0) { setStatus('MT5 Login ID 超出可安全處理範圍。', 'err'); return; }
 
+  running = true;
+  clearIdleTimer();
+  updateSessionControls();
+  setSessionStatus('正在建立 FTMO 唯讀登入工作階段…');
+  setStatus('正在連線、Bootstrap 及登入…');
+  try {
+    log(`Login requested for MT5 account ${loginId}; credentials are not logged.`);
+    await connectWebSocket();
+    await doBootstrap();
+    log('Preparing read-only login command (cmd=28).');
+    loginPayloadBuffer = buildLoginPayload(loginId, password, otp);
+    if (loginPayloadBuffer.length !== 920) throw new Error(`Login payload size mismatch: ${loginPayloadBuffer.length} bytes`);
+    $('password').value = '';
+    $('otp').value = '';
+    password = '';
+    otp = '';
+    const loginResult = await request(CMD_LOGIN, loginPayloadBuffer, 'cmd=28 Read-only Login', 15000);
+    loginPayloadBuffer.fill(0);
+    loginPayloadBuffer = null;
+    validateLoginResponse(loginResult);
+    log('Read-only login accepted. No order/trade command was sent.', 'ok');
+    await new Promise((resolve) => setTimeout(resolve, 180));
+    if (!loggedIn || !socket || socket.readyState !== WebSocket.OPEN || !activeAesKey) {
+      throw new Error('WebSocket or MT5 Session closed immediately after login. Please sign in again.');
+    }
+    lastActivityAt = Date.now();
+    setSessionStatus('已登入 FTMO 唯讀帳戶。可連續查詢多組商品與週期；閒置 15 分鐘將自動登出。', 'ok');
+    setStatus('登入成功。請選擇商品、週期及 UTC 時間範圍，再下載 CSV。', 'ok');
+    log('Persistent read-only session established. The WebSocket and Session AES Key will remain active between downloads.', 'ok');
+  } catch (err) {
+    log(`LOGIN ERROR: ${err && err.message ? err.message : String(err)}`, 'err');
+    if (loggedIn) await bestEffortLogout();
+    closeSessionTransport('Login failed');
+    setSessionStatus('登入失敗或連線中斷。請檢查帳戶資料及診斷紀錄。', 'err');
+    setStatus(`登入失敗：${err && err.message ? err.message : String(err)}`, 'err');
+  } finally {
+    if (loginPayloadBuffer) loginPayloadBuffer.fill(0);
+    password = '';
+    otp = '';
+    $('password').value = '';
+    $('otp').value = '';
+    running = false;
+    updateSessionControls();
+    if (loggedIn) scheduleIdleTimer();
+  }
+}
+
+async function logoutSession(reason = '使用者手動登出') {
+  if (running) return;
+  running = true;
+  clearIdleTimer();
+  updateSessionControls();
+  setSessionStatus(reason === '閒置 15 分鐘自動登出' ? '已達閒置期限，正在登出…' : '正在登出 FTMO…');
+  if (loggedIn) {
+    log(`Logout requested: ${reason}.`);
+    await bestEffortLogout();
+  }
+  closeSessionTransport(reason);
+  $('password').value = '';
+  $('otp').value = '';
+  lastActivityAt = 0;
+  running = false;
+  updateSessionControls();
+  setSessionStatus(`已登出。${reason}。`, 'warn');
+  setStatus('目前未登入。重新查詢前，請先登入 FTMO。', 'warn');
+  log(`Session closed: ${reason}.`, 'ok');
+}
+
+async function run() {
+  if (running) return;
+  if (!loggedIn || !socket || socket.readyState !== WebSocket.OPEN || !activeAesKey) {
+    setStatus('目前沒有有效的 FTMO Session，請先登入。', 'warn');
+    setSessionStatus('尚未登入，或 FTMO 連線已失效。', 'warn');
+    updateSessionControls();
+    return;
+  }
+
+  let ratesPayload = null;
   let symbol, timeframe, range;
   try {
     symbol = getSelectedSymbol();
@@ -565,35 +750,29 @@ async function run() {
     if (estimated > MAX_ESTIMATED_BARS) throw new Error(`預估約 ${estimated.toLocaleString()} 根 K 線，超過本頁單次查詢上限 ${MAX_ESTIMATED_BARS.toLocaleString()} 根。請縮短時間範圍或改用較大的週期。`);
   } catch (err) { setStatus(err.message, 'err'); return; }
 
-  running = true; $('run').disabled = true;
+  running = true;
+  clearIdleTimer();
+  updateSessionControls();
   $('metric-symbol').textContent = symbol;
   $('metric-timeframe').textContent = timeframe.label;
-  $('metric-bars').textContent = '—'; $('metric-format').textContent = '—';
+  $('metric-bars').textContent = '—';
+  $('metric-format').textContent = '—';
   $('preview').innerHTML = '<tr><td colspan="7" style="text-align:left;color:#9aa9c0">正在取得資料…</td></tr>';
   $('rangeSummary').textContent = `查詢區間：${isoUtc(range.startTs)} 至 ${isoUtc(range.endTs)}（UTC）`;
-  setStatus('連線、登入與歷史資料下載進行中…');
+  setStatus('正在使用現有 FTMO Session 下載歷史資料…');
+  setSessionStatus('FTMO 已登入；目前查詢中，閒置倒數暫停。', 'ok');
 
   try {
     log(`Request: symbol=${symbol}; timeframe=${timeframe.label} (${timeframe.minutes} minutes; cmd=11 wire_period=${timeframe.wirePeriod}); range=${isoUtc(range.startTs)} to ${isoUtc(range.endTs)} UTC.`);
     log(`Estimated bars: ${estimateBars(range.startTs, range.endTs, timeframe).toLocaleString()}.`);
-    await connectWebSocket();
-    await doBootstrap();
-
-    log('Preparing read-only login command (cmd=28).');
-    loginPayloadBuffer = buildLoginPayload(loginId, password, otp);
-    if (loginPayloadBuffer.length !== 920) throw new Error(`Login payload size mismatch: ${loginPayloadBuffer.length} bytes`);
-    $('password').value = ''; $('otp').value = ''; password = ''; otp = '';
-    const loginResult = await request(CMD_LOGIN, loginPayloadBuffer, 'cmd=28 Read-only Login', 15000);
-    loginPayloadBuffer.fill(0); loginPayloadBuffer = null;
-    validateLoginResponse(loginResult);
-    log('Read-only login accepted. No order/trade command was sent.', 'ok');
-    await new Promise((resolve) => setTimeout(resolve, 180));
-
     ratesPayload = buildRatesPayload(symbol, timeframe.wirePeriod, range.startTs, range.endTs);
-    log(`Requesting ${symbol} ${timeframe.label} historical rates for selected UTC range.`);
     const ratesResult = await request(CMD_GET_RATES, ratesPayload, `cmd=11 Get Rates (${symbol} ${timeframe.label})`, 30000);
-    ratesPayload.fill(0); ratesPayload = null;
-    if (ratesResult.responseCode !== 0) throw new Error(`Historical rates request rejected: response_code=${ratesResult.responseCode}`);
+    ratesPayload.fill(0);
+    ratesPayload = null;
+    if (ratesResult.responseCode !== 0) {
+      ratesResult.body.fill(0);
+      throw new Error(`Historical rates request rejected: response_code=${ratesResult.responseCode}`);
+    }
 
     const parsed = parseRateBars(ratesResult.body);
     ratesResult.body.fill(0);
@@ -613,19 +792,56 @@ async function run() {
     const filename = `${safeFilePart(symbol)}_${timeframe.label}_${isoUtc(range.startTs).slice(0,10)}_to_${isoUtc(range.endTs).slice(0,10)}_UTC.csv`;
     downloadCsv(csv, filename);
     log(`CSV download started: ${filename}. All timestamps are explicitly UTC.`, 'ok');
-    setStatus(`完成：取得 ${bars.length} 根 ${symbol} ${timeframe.label} K 線，CSV 已開始下載。`, 'ok');
+    setStatus(`完成：取得 ${bars.length} 根 ${symbol} ${timeframe.label} K 線，CSV 已開始下載。登入 Session 仍保持連線。`, 'ok');
   } catch (err) {
     log(`ERROR: ${err && err.message ? err.message : String(err)}`, 'err');
-    setStatus(`執行失敗：${err && err.message ? err.message : String(err)}`, 'err');
+    setStatus(`查詢失敗：${err && err.message ? err.message : String(err)}`, 'err');
   } finally {
-    if (loginPayloadBuffer) loginPayloadBuffer.fill(0);
     if (ratesPayload) ratesPayload.fill(0);
-    password = ''; otp = ''; $('password').value = ''; $('otp').value = '';
-    await bestEffortLogout();
-    if (socket && socket.readyState === WebSocket.OPEN) socket.close(1000, 'Client operation complete');
-    activeAesKey = null; pendingRequest = null; loggedIn = false; running = false; $('run').disabled = false;
+    running = false;
+    updateSessionControls();
+    if (loggedIn && socket && socket.readyState === WebSocket.OPEN) {
+      lastActivityAt = Date.now();
+      setSessionStatus('FTMO Session 仍有效。可繼續下載其他商品或週期；閒置 15 分鐘後自動登出。', 'ok');
+      scheduleIdleTimer();
+    } else {
+      loggedIn = false;
+      activeAesKey = null;
+      clearIdleTimer();
+      setSessionStatus('FTMO Session 已失效，請重新登入。', 'warn');
+      updateSessionControls();
+    }
   }
 }
+
+// Close the transport on page exit. Browsers cannot guarantee that an
+// asynchronous application-level cmd=2 logout completes during pagehide.
+window.addEventListener('pagehide', () => {
+  clearIdleTimer();
+  const ws = socket;
+  socket = null;
+  activeAesKey = null;
+  loggedIn = false;
+  if (ws && (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING)) {
+    ws.expectedClose = true;
+    try { ws.close(1000, 'Page leaving'); } catch (_) { /* best effort */ }
+  }
+});
+
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden && loggedIn && !running) {
+    // Re-check the wall-clock deadline when a background tab becomes active;
+    // browsers may throttle timers while a tab is hidden.
+    scheduleIdleTimer();
+  }
+});
+
+for (const eventName of ['pointerdown', 'keydown', 'input', 'change', 'wheel', 'touchstart', 'scroll']) {
+  document.addEventListener(eventName, recordUserActivity, true);
+}
+
+$('loginBtn').addEventListener('click', loginSession);
+$('logoutBtn').addEventListener('click', () => logoutSession('使用者手動登出'));
 
 $('symbol').addEventListener('change', () => {
   $('customSymbolWrap').classList.toggle('hidden', $('symbol').value !== '__custom__');
@@ -643,9 +859,12 @@ $('clear').addEventListener('click', () => {
 });
 
 applyRangePreset('24h');
+updateSessionControls();
 log(`Page loaded. Origin=${location.origin}; endpoint=${ENDPOINT}.`);
-log('Mode: browser-native WebSocket + Web Crypto; no credential persistence.');
+log('Mode: persistent browser-native WebSocket + Web Crypto session; credentials are not persisted.');
 log('Time inputs are interpreted as UTC explicitly, regardless of device timezone.');
+log('Session policy: manual logout or 15 minutes of user inactivity; active downloads pause the idle timer.');
+log('No unverified application heartbeat is sent. If FTMO closes the socket, sign in again.');
 </script>
 </body>
 </html>
